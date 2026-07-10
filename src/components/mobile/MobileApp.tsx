@@ -107,26 +107,28 @@ export const MobileApp: React.FC = () => {
     <div className={`min-h-screen pb-16 flex flex-col w-full relative transition-colors duration-300 ${
       isServices ? 'bg-brand-graphite text-white font-sans' : 'bg-brand-bg text-brand-graphite font-sans'
     }`}>
-      {/* Top Segmented Selector Bar (Dynamic collapsible header matching Flipkart layout with cinematic gradient) */}
-      <div className={`w-full px-4 sticky top-0 z-40 transition-all duration-300 flex flex-col ${
-        showHeader ? 'py-3.5 gap-2.5 shadow-none' : 'py-2 gap-0 shadow-soft'
-      } ${
-        isServices
-          ? showHeader
-            ? 'bg-gradient-to-b from-black/60 via-black/20 to-transparent border-b border-transparent'
-            : 'bg-zinc-900 border-b border-zinc-800 text-white'
-          : currentVertical === 'quick'
+      <div 
+        style={{ transform: showHeader ? 'translateY(0)' : 'translateY(-126px)' }}
+        className={`w-full px-4 fixed top-0 left-0 right-0 z-40 transition-all duration-220 ease-in-out flex flex-col py-3.5 gap-2.5 ${
+          showHeader ? 'shadow-none' : 'shadow-soft'
+        } ${
+          isServices
             ? showHeader
-              ? 'bg-gradient-to-b from-orange-200/70 via-orange-50/20 to-[#FAF9F6] border-b border-transparent text-brand-graphite'
-              : 'bg-[#FAF9F6] border-b border-brand-border/60 text-brand-graphite'
-            : showHeader
-              ? 'bg-gradient-to-b from-zinc-300 via-zinc-200/50 to-[#FAF9F6] border-b border-transparent text-brand-graphite'
-              : 'bg-[#FAF9F6] border-b border-brand-border/60 text-brand-graphite'
-      }`}>
+              ? 'bg-gradient-to-b from-black/60 via-black/20 to-transparent border-b border-transparent'
+              : 'bg-zinc-900 border-b border-zinc-800 text-white'
+            : currentVertical === 'quick'
+              ? showHeader
+                ? 'bg-gradient-to-b from-orange-200/70 via-orange-50/20 to-[#FAF9F6] border-b border-transparent text-brand-graphite'
+                : 'bg-[#FAF9F6] border-b border-brand-border/60 text-brand-graphite'
+              : showHeader
+                ? 'bg-gradient-to-b from-zinc-300 via-zinc-200/50 to-[#FAF9F6] border-b border-transparent text-brand-graphite'
+                : 'bg-[#FAF9F6] border-b border-brand-border/60 text-brand-graphite'
+        }`}
+      >
         
-        {/* Row 1: Switcher Cards (Collapsible) */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          showHeader ? 'max-h-[78px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        {/* Row 1: Switcher Cards (Static height, transition opacity only) */}
+        <div className={`w-full transition-all duration-220 h-[62px] flex-shrink-0 ${
+          showHeader ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}>
           <div className="grid grid-cols-3 gap-2.5 w-full select-none">
             {(['shop', 'quick', 'services'] as const).map(v => {
@@ -178,9 +180,9 @@ export const MobileApp: React.FC = () => {
           </div>
         </div>
 
-        {/* Row 2: Location indicator row (Collapsible capsule) */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          showHeader ? 'max-h-10 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        {/* Row 2: Location indicator row (Static height, transition opacity only) */}
+        <div className={`w-full transition-all duration-220 h-[36px] flex-shrink-0 ${
+          showHeader ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}>
           <div 
             onClick={() => { setInputLocation(location); setShowLocationModal(true); }}
@@ -196,8 +198,8 @@ export const MobileApp: React.FC = () => {
           </div>
         </div>
 
-        {/* Row 3: Search Bar Trigger (STICKY below the Switcher Capsule) */}
-        <div className="w-full shrink-0 select-none">
+        {/* Row 3: Search Bar Trigger (Static height, always visible) */}
+        <div className="w-full h-[44px] flex-shrink-0 select-none">
           <div
             onClick={() => { setSearchQuery(''); navigateTo('search'); }}
             className="w-full bg-white border border-brand-border rounded-input py-2.5 px-4 flex items-center justify-between shadow-soft text-brand-slate text-xs font-medium cursor-pointer transition-all active:scale-[0.99] hover:border-zinc-300 leading-none shrink-0"
@@ -223,7 +225,7 @@ export const MobileApp: React.FC = () => {
       </div>
 
       {/* Screen Router */}
-      <div className="flex-1 w-full relative">
+      <div className="flex-1 w-full relative pt-[182px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={`${currentPath}-${currentVertical}`}

@@ -357,11 +357,10 @@ export const VerticalShop: React.FC = () => {
                         className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
                       />
                       {product.isAssured && (
-                        <img
-                          src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
-                          alt="Assured"
-                          className="h-3.5 object-contain absolute bottom-3.5 left-3.5 shadow-soft"
-                        />
+                        <div className="absolute bottom-3.5 left-3.5 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
+                          <span className="text-brand-blue">ShopIndia</span>
+                          <span className="text-brand-orange">Assured</span>
+                        </div>
                       )}
                     </div>
 
@@ -431,11 +430,10 @@ export const VerticalShop: React.FC = () => {
                         className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
                       />
                       {product.isAssured && (
-                        <img
-                          src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
-                          alt="Assured"
-                          className="h-3.5 object-contain absolute bottom-3.5 left-3.5 shadow-soft"
-                        />
+                        <div className="absolute bottom-3.5 left-3.5 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
+                          <span className="text-brand-blue">ShopIndia</span>
+                          <span className="text-brand-orange">Assured</span>
+                        </div>
                       )}
                     </div>
 

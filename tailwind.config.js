@@ -20,17 +20,7 @@ export default {
           red: '#FF3366', // Soft Red (Wishlist)
           border: '#E5E5EA' // Softer grey border
         },
-        fk: {
-          blue: '#0F2C59', // Deep Luxury Brand Navy
-          yellow: '#ffe500',
-          darkBlue: '#0A2540',
-          text: '#1C1C1E', // Graphite
-          gray: '#86868B', // Slate Grey
-          lightGray: '#FAF9F6', // Warm White
-          border: '#E5E5EA', // Softer grey border
-          orange: '#FF6600', // Premium Orange
-          red: '#FF3366' // Soft Red
-        },
+
         quick: {
           green: '#10B981', // Emerald Green
           lightGreen: '#ECFDF5',
@@ -62,13 +52,10 @@ export default {
         md3_1: '0 4px 12px rgba(0, 0, 0, 0.02)',
         md3_2: '0 10px 24px rgba(0, 0, 0, 0.04)',
         md3_3: '0 24px 48px rgba(0, 0, 0, 0.06)',
-        fk: '0 2px 8px rgba(0, 0, 0, 0.01)',
-        fkHeader: '0 1px 1px 0 rgba(0,0,0,.04)',
-        fkCardHover: '0 24px 48px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.02)'
+
       },
       borderRadius: {
-        'fk': '14px', // Unified rounded corner values
-        'fk-card': '18px',
+
         'md3': '14px',
         'md3-lg': '18px',
         input: '14px',

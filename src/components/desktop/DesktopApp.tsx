@@ -39,7 +39,7 @@ export const DesktopApp: React.FC = () => {
 
   return (
     <div className={`min-h-screen flex flex-col w-full transition-colors duration-400 ${
-      isServices ? 'bg-services-bg text-services-text' : 'bg-fk-lightGray text-gray-800'
+      isServices ? 'bg-services-bg text-services-text' : 'bg-[#FAF9F6] text-gray-800'
     }`}>
       <DesktopHeader />
       <main className="flex-1 w-full">

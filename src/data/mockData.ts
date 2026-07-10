@@ -12,7 +12,7 @@ export interface Product {
   vertical: 'shop' | 'quick' | 'services';
   specs?: Record<string, string>;
   deliveryTime?: string; // e.g. "Tomorrow, 11 AM" or "10 mins" or "Tomorrow at 4 PM"
-  isAssured?: boolean; // Flipkart Assured badge
+  isAssured?: boolean; // ShopIndia Assured badge
   quantity?: number; // for cart
 }
 

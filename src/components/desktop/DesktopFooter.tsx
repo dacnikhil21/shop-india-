@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Briefcase, Award, HelpCircle, Gift } from 'lucide-react';
+import { Gift, HelpCircle, Briefcase, Award, CreditCard, Smartphone, Wallet } from 'lucide-react';
 
 export const DesktopFooter: React.FC = () => {
   const { currentVertical } = useApp();
@@ -66,21 +66,21 @@ export const DesktopFooter: React.FC = () => {
 
       {/* Lower footer info links */}
       <div className="max-w-7xl mx-auto px-12 py-6 flex flex-wrap justify-between items-center gap-4">
-        <div className="flex gap-8 flex-wrap">
-          <a href="#" className="flex items-center gap-2 hover:text-fk-blue transition-colors">
-            <Briefcase size={14} className="text-fk-yellow" />
+        <div className="flex items-center gap-6 text-sm font-semibold text-brand-graphite">
+          <a href="#" className="flex items-center gap-2 hover:text-brand-blue transition-colors">
+            <Briefcase size={14} className="text-brand-orange" />
             <span>Become a Seller</span>
           </a>
-          <a href="#" className="flex items-center gap-2 hover:text-fk-blue transition-colors">
-            <Award size={14} className="text-fk-yellow" />
+          <a href="#" className="flex items-center gap-2 hover:text-brand-blue transition-colors">
+            <Award size={14} className="text-brand-orange" />
             <span>Advertise</span>
           </a>
-          <a href="#" className="flex items-center gap-2 hover:text-fk-blue transition-colors">
-            <Gift size={14} className="text-fk-yellow" />
+          <a href="#" className="flex items-center gap-2 hover:text-brand-blue transition-colors">
+            <Gift size={14} className="text-brand-orange" />
             <span>Gift Cards</span>
           </a>
-          <a href="#" className="flex items-center gap-2 hover:text-fk-blue transition-colors">
-            <HelpCircle size={14} className="text-fk-yellow" />
+          <a href="#" className="flex items-center gap-2 hover:text-brand-blue transition-colors">
+            <HelpCircle size={14} className="text-brand-orange" />
             <span>Help Center</span>
           </a>
         </div>
@@ -89,8 +89,11 @@ export const DesktopFooter: React.FC = () => {
           <span>© 2026 ShopIndia.com. Created with React & Tailwind.</span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <img src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/payment-method_69e7ec.svg" alt="Payment Gateways" className="opacity-75 grayscale hover:grayscale-0 transition-all cursor-pointer" />
+        <div className="flex items-center gap-3 text-zinc-400">
+          <CreditCard size={24} className="hover:text-brand-graphite transition-colors" />
+          <Smartphone size={24} className="hover:text-brand-graphite transition-colors" />
+          <Wallet size={24} className="hover:text-brand-graphite transition-colors" />
+          <span className="text-[10px] font-bold ml-1">100% SECURE</span>
         </div>
       </div>
     </footer>

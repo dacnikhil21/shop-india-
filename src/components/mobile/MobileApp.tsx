@@ -138,7 +138,7 @@ export const MobileApp: React.FC = () => {
                   title: 'Shop', 
                   icon: ShoppingBag,
                   activeClass: isServices ? 'bg-[#C5A880] text-zinc-950 border-transparent shadow-elevated' : 'bg-[#1C1C1E] text-white border-transparent shadow-elevated',
-                  inactiveClass: isServices ? 'bg-zinc-900 border-zinc-800 text-zinc-400' : 'bg-white border-brand-border text-brand-graphite',
+                  inactiveClass: isServices ? 'bg-zinc-900 border-zinc-800 text-zinc-400' : 'bg-[#1C1C1E]/55 text-white/80 border-transparent',
                   iconActive: 'text-white',
                   iconInactive: 'text-brand-blue'
                 },
@@ -170,10 +170,20 @@ export const MobileApp: React.FC = () => {
                     isActive ? item.activeClass : item.inactiveClass
                   }`}
                 >
-                  <Icon size={14} className={`mb-1 transition-all ${isActive ? item.iconActive : item.iconInactive}`} strokeWidth={2.5} />
-                  <span className="text-[10px] font-black tracking-wide leading-none">
-                    {item.title}
-                  </span>
+                  {v === 'shop' ? (
+                    <img 
+                      src="/logo.png" 
+                      alt="ShopIndia" 
+                      className="h-9 w-auto object-contain mix-blend-screen select-none pointer-events-none"
+                    />
+                  ) : (
+                    <>
+                      <Icon size={14} className={`mb-1 transition-all ${isActive ? item.iconActive : item.iconInactive}`} strokeWidth={2.5} />
+                      <span className="text-[10px] font-black tracking-wide leading-none">
+                        {item.title}
+                      </span>
+                    </>
+                  )}
                 </button>
               );
             })}

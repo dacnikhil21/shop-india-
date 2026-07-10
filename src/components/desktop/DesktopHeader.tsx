@@ -142,7 +142,11 @@ export const DesktopHeader: React.FC = () => {
                 key={v}
                 onClick={() => setCurrentVertical(v)}
                 className={`flex items-center gap-3 px-4 py-1.5 rounded-[12px] relative w-44 h-11 transition-all duration-300 focus:outline-none z-10 ${
-                  isActive ? item.activeColor : item.inactiveColor
+                  isActive 
+                    ? item.activeColor 
+                    : v === 'shop' 
+                      ? 'bg-[#1C1C1E]/55 text-white border-transparent' 
+                      : item.inactiveColor
                 }`}
               >
                 {isActive && (
@@ -157,21 +161,31 @@ export const DesktopHeader: React.FC = () => {
                   />
                 )}
                 
-                {/* Visual circle icon badge */}
-                <div className={`w-5.5 h-5.5 rounded-full flex items-center justify-center shrink-0 transition-all ${
-                  isActive ? 'bg-white/15 text-white' : item.iconInactive
-                }`}>
-                  <Icon size={10} strokeWidth={2.5} />
-                </div>
+                {v === 'shop' ? (
+                  <img 
+                    src="/logo.png" 
+                    alt="ShopIndia" 
+                    className="h-8 w-auto object-contain mix-blend-screen select-none pointer-events-none mx-auto"
+                  />
+                ) : (
+                  <>
+                    {/* Visual circle icon badge */}
+                    <div className={`w-5.5 h-5.5 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                      isActive ? 'bg-white/15 text-white' : item.iconInactive
+                    }`}>
+                      <Icon size={10} strokeWidth={2.5} />
+                    </div>
 
-                <div className="flex flex-col leading-none text-left">
-                  <span className="text-[10px] font-black tracking-wide">
-                    {item.title}
-                  </span>
-                  <span className={`text-[7px] mt-0.5 whitespace-nowrap leading-none ${isActive ? 'opacity-85' : 'opacity-70'}`}>
-                    {item.subtitle}
-                  </span>
-                </div>
+                    <div className="flex flex-col leading-none text-left">
+                      <span className="text-[10px] font-black tracking-wide">
+                        {item.title}
+                      </span>
+                      <span className={`text-[7px] mt-0.5 whitespace-nowrap leading-none ${isActive ? 'opacity-85' : 'opacity-70'}`}>
+                        {item.subtitle}
+                      </span>
+                    </div>
+                  </>
+                )}
               </button>
             );
           })}
@@ -191,7 +205,7 @@ export const DesktopHeader: React.FC = () => {
               <img
                 src="/logo.png"
                 alt="ShopIndia"
-                className="h-6 object-contain"
+                className="h-10 object-contain mix-blend-screen"
                 onError={() => setLogoLoaded(false)}
               />
             ) : (

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PRODUCTS, CATEGORIES } from '../../data/mockData';
+import { PRODUCTS } from '../../data/mockData';
 import { Search, ShoppingCart, ChevronDown, User, Package, LogOut, Briefcase, MapPin, Sparkles, Zap, ShoppingBag, Mic, Camera, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -362,32 +362,6 @@ export const DesktopHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Categories Sub-Header Bar (Only for E-Commerce & Grocery on Home Page) */}
-      {currentVertical !== 'services' && (
-        <div className="w-full bg-white/85 backdrop-blur-md border-b border-brand-border py-4 shadow-soft flex justify-center items-center gap-12 overflow-x-auto text-brand-graphite scrollbar-none no-scrollbar select-none transition-all">
-          {CATEGORIES.filter(cat => cat.vertical === currentVertical).map(cat => (
-            <div
-              key={cat.id}
-              onClick={() => {
-                setSearchQuery(cat.name);
-                navigateTo('search');
-              }}
-              className="flex flex-col items-center cursor-pointer group text-center shrink-0 px-2 py-1 rounded-card hover:bg-slate-50/40 transition-colors duration-300"
-            >
-              <div className="w-12 h-12 rounded-full overflow-hidden mb-2 flex items-center justify-center bg-white border border-brand-border/80 shadow-soft group-hover:scale-[1.04] group-hover:shadow-premium group-hover:border-brand-blue/30 transition-all duration-300">
-                <img 
-                  src={cat.image} 
-                  alt={cat.name} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
-                />
-              </div>
-              <span className="text-[9.5px] font-semibold text-brand-slate group-hover:text-brand-blue transition-colors duration-300 whitespace-nowrap tracking-wide mt-0.5 font-heading">
-                {cat.name}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
     </header>
   );
 };

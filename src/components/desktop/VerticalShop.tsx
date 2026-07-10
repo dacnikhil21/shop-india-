@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PRODUCTS, BANNERS } from '../../data/mockData';
+import { PRODUCTS, BANNERS, CATEGORIES } from '../../data/mockData';
 import { Star, Award, Heart, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const VerticalShop: React.FC = () => {
-  const { navigateTo } = useApp();
+  const { navigateTo, setSearchQuery } = useApp();
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 32, seconds: 45 });
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -68,6 +68,33 @@ export const VerticalShop: React.FC = () => {
   return (
     <div className="w-full flex flex-col gap-16 py-10 px-16 bg-brand-bg min-h-screen text-brand-graphite font-sans transition-colors duration-300">
       
+      {/* Categories Bar (Horizontal Scrollable, scrolls away with body content) */}
+      <div className="w-full flex justify-center border-b border-brand-border/40 pb-6 overflow-hidden select-none">
+        <div className="flex items-center gap-12 overflow-x-auto no-scrollbar py-2 max-w-full px-4 scroll-smooth scrollbar-none">
+          {CATEGORIES.filter(cat => cat.vertical === 'shop').map(cat => (
+            <div
+              key={cat.id}
+              onClick={() => {
+                setSearchQuery(cat.name);
+                navigateTo('search');
+              }}
+              className="flex flex-col items-center cursor-pointer group text-center shrink-0 px-2 py-1 rounded-card hover:bg-slate-50/40 transition-colors duration-300"
+            >
+              <div className="w-14 h-14 rounded-full overflow-hidden mb-2 flex items-center justify-center bg-white border border-brand-border/80 shadow-soft group-hover:scale-[1.04] group-hover:shadow-premium group-hover:border-brand-blue/30 transition-all duration-300">
+                <img 
+                  src={cat.image} 
+                  alt={cat.name} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
+                />
+              </div>
+              <span className="text-[10px] font-bold text-brand-slate group-hover:text-brand-blue transition-colors duration-300 whitespace-nowrap tracking-wide mt-0.5 font-heading">
+                {cat.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* 1. Hero Banner Carousel (Redesigned from Scratch with Apple-like typography & progress indicator dots) */}
       <div 
         className="w-full h-[360px] rounded-hero overflow-hidden shadow-premium relative bg-zinc-950 group"

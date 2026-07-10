@@ -1,0 +1,3 @@
+- [x] Fix Desktop Header styling to integrate logo flawlessly without boxed styling.
+- [x] Fix Mobile App styling to perfectly integrate the ShopIndia logo without box containers.
+- [x] Apply pure black backgrounds for the Shop vertical header so the logo naturally flows, exactly like luxury brand apps.

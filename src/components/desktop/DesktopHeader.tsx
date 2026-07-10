@@ -165,7 +165,7 @@ export const DesktopHeader: React.FC = () => {
                   <img 
                     src="/logo.png" 
                     alt="ShopIndia" 
-                    className="h-8 w-auto object-contain mix-blend-screen select-none pointer-events-none mx-auto"
+                    className="h-11 w-auto object-contain mix-blend-screen select-none pointer-events-none mx-auto"
                   />
                 ) : (
                   <>
@@ -205,7 +205,11 @@ export const DesktopHeader: React.FC = () => {
               <img
                 src="/logo.png"
                 alt="ShopIndia"
-                className="h-10 object-contain mix-blend-screen"
+                className={`h-14 object-contain transition-all contrast-200 ${
+                  isDark
+                    ? 'mix-blend-screen'
+                    : 'invert mix-blend-multiply opacity-90'
+                }`}
                 onError={() => setLogoLoaded(false)}
               />
             ) : (

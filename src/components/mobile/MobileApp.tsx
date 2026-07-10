@@ -174,7 +174,7 @@ export const MobileApp: React.FC = () => {
                     <img 
                       src="/logo.png" 
                       alt="ShopIndia" 
-                      className="h-9 w-auto object-contain mix-blend-screen select-none pointer-events-none"
+                      className="h-[52px] w-auto object-contain mix-blend-screen select-none pointer-events-none"
                     />
                   ) : (
                     <>

@@ -1,17 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PRODUCTS, BANNERS, CATEGORIES } from '../../data/mockData';
-import { Carousel } from '../common/Carousel';
-import { Search, Star, Clock, Heart } from 'lucide-react';
+import { PRODUCTS, BANNERS } from '../../data/mockData';
+import { 
+  Star, Clock, Heart, ChevronRight, 
+  LayoutGrid, ShoppingBag, Smartphone, Shirt, Sparkles, 
+  Pill, Utensils, CupSoda, Smile, MoreHorizontal,
+  Truck, Award, RotateCcw, ShieldCheck, Apple
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const VerticalShopMobile: React.FC = () => {
   const { navigateTo, setSearchQuery } = useApp();
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 44, seconds: 12 });
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const shopProducts = PRODUCTS.filter(p => p.vertical === 'shop');
   const banners = BANNERS.filter(b => b.vertical === 'shop');
-  const shopCategories = CATEGORIES.filter(c => c.vertical === 'shop');
+
+  // Autoplay for Hero Carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
 
   // Deals countdown timer
   useEffect(() => {
@@ -33,73 +46,112 @@ export const VerticalShopMobile: React.FC = () => {
 
   const formatNumber = (num: number) => String(num).padStart(2, '0');
 
+  // 2x5 Mobile Categories circular list (styled with pastel background rings)
+  const mobileCategoriesList = [
+    { name: 'All Categories', icon: LayoutGrid, color: 'bg-indigo-50 text-indigo-600', query: '' },
+    { name: 'Grocery', icon: ShoppingBag, color: 'bg-emerald-50 text-emerald-600', query: 'Grocery', vertical: 'quick' },
+    { name: 'Electronics', icon: Smartphone, color: 'bg-blue-50 text-blue-600', query: 'Electronics' },
+    { name: 'Fashion', icon: Shirt, color: 'bg-purple-50 text-purple-600', query: 'Fashion' },
+    { name: 'Beauty', icon: Sparkles, color: 'bg-pink-50 text-pink-600', query: 'Beauty' },
+    { name: 'Pharmacy', icon: Pill, color: 'bg-red-50 text-red-600', query: 'Pharmacy' },
+    { name: 'Home & Kitchen', icon: Utensils, color: 'bg-amber-50 text-amber-600', query: 'Home' },
+    { name: 'Food & Drinks', icon: CupSoda, color: 'bg-cyan-50 text-cyan-600', query: 'Snacks' },
+    { name: 'Baby Care', icon: Smile, color: 'bg-teal-50 text-teal-600', query: 'Baby' },
+    { name: 'More', icon: MoreHorizontal, color: 'bg-slate-50 text-slate-600', query: '' }
+  ];
+
   return (
-    <div className="w-full flex flex-col gap-3 py-3.5 px-3 bg-slate-50 min-h-screen text-[#172337] pb-16">
-      {/* Mobile Search Bar Trigger */}
-      <div
-        onClick={() => { setSearchQuery(''); navigateTo('search'); }}
-        className="w-full bg-white border border-fk-border rounded-md py-2.5 px-3.5 flex items-center gap-2 shadow-sm text-slate-400 text-xs font-semibold cursor-pointer transition-shadow active:shadow-md"
-      >
-        <Search size={14} className="text-slate-400" />
-        <span>Search for products, brands & categories</span>
-      </div>
-
-      {/* Horizontal Categories Scroll */}
-      <div className="w-full flex gap-3.5 overflow-x-auto py-2.5 px-2 bg-white rounded-md border border-fk-border shadow-sm no-scrollbar select-none">
-        {shopCategories.map(cat => (
-          <div
-            key={cat.id}
-            onClick={() => { setSearchQuery(cat.name); navigateTo('search'); }}
-            className="flex flex-col items-center shrink-0 w-16 text-center cursor-pointer active:scale-95 transition-transform"
-          >
-            <div className="w-11 h-11 rounded-full bg-slate-50 border border-fk-border overflow-hidden mb-1 flex items-center justify-center shadow-xs">
-              <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
-            </div>
-            <span className="text-[9px] font-bold text-slate-600 truncate w-full tracking-wide">{cat.name}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Hero Banner Carousel with gradient shadows */}
-      <div className="w-full aspect-[21/9] rounded-md overflow-hidden shadow-sm">
-        <Carousel showArrows={false} showIndicators={true} autoplayDelay={4500}>
-          {banners.map(banner => (
+    <div className="w-full flex flex-col gap-7 py-6 px-4 bg-brand-bg min-h-screen text-brand-graphite font-sans pb-24 transition-colors duration-300">
+      
+      {/* 2. Circular Categories Grid (2x5 structure layout matching user reference) */}
+      <div className="w-full bg-white border border-brand-border rounded-card p-4 shadow-soft grid grid-cols-5 gap-y-4.5 gap-x-2 select-none justify-items-center">
+        {mobileCategoriesList.map((cat, idx) => {
+          const Icon = cat.icon;
+          return (
             <div
-              key={banner.id}
-              onClick={() => navigateTo('search')}
-              className="w-full h-full relative bg-slate-900"
+              key={idx}
+              onClick={() => { 
+                setSearchQuery(cat.query); 
+                navigateTo('search'); 
+              }}
+              className="flex flex-col items-center text-center cursor-pointer active:scale-90 transition-transform w-14"
             >
-              <img src={banner.image} alt={banner.title} className="w-full h-full object-cover opacity-60" />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-transparent flex flex-col justify-center px-6 text-white text-left select-none">
-                <span className="text-[8px] bg-[#FF6B00] text-white font-extrabold px-1.5 py-0.5 rounded w-max uppercase tracking-wider mb-1">Plus Deal</span>
-                <h3 className="text-xs font-extrabold line-clamp-1">{banner.title}</h3>
-                <p className="text-[9px] opacity-90 line-clamp-1">{banner.subtitle}</p>
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center mb-1.5 shadow-soft ${cat.color} transition-all`}>
+                <Icon size={16} strokeWidth={2.2} />
+              </div>
+              <div className="h-6.5 flex items-start justify-center w-full overflow-hidden">
+                <span className="text-[8.5px] font-semibold text-brand-graphite opacity-90 line-clamp-2 w-full tracking-tight leading-tight font-heading">
+                  {cat.name}
+                </span>
               </div>
             </div>
-          ))}
-        </Carousel>
+          );
+        })}
       </div>
 
-      {/* Mobile Deals of the Day Box */}
-      <div className="w-full bg-white rounded-md p-3.5 shadow-sm border border-fk-border flex flex-col gap-3">
-        <div className="flex justify-between items-center border-b border-fk-border pb-2 leading-none">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-extrabold text-[#172337] tracking-tight uppercase">Deals of the Day</span>
-            <div className="flex items-center gap-0.5 text-[9px] text-[#E53935] font-extrabold bg-red-50 px-1.5 py-0.5 rounded border border-red-150">
+      {/* 3. Hero Banner Carousel */}
+      <div className="w-full aspect-[2/1] rounded-[28px] overflow-hidden shadow-soft relative bg-zinc-950">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="absolute inset-0 w-full h-full"
+            onClick={() => navigateTo('search')}
+          >
+            <img src={banners[currentSlide].image} alt={banners[currentSlide].title} className="w-full h-full object-cover opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/80 via-zinc-950/30 to-transparent flex flex-col justify-center px-6 text-white text-left select-none">
+              <span className="text-[7.5px] bg-brand-orange text-white font-black px-2 py-0.5 rounded w-max uppercase tracking-wider mb-2 shadow-soft">
+                Super Deal
+              </span>
+              <h3 className="text-xs font-black line-clamp-1 font-heading uppercase tracking-wide leading-tight drop-shadow">
+                {banners[currentSlide].title}
+              </h3>
+              <p className="text-[9.5px] opacity-90 line-clamp-1 text-zinc-300 font-semibold mt-1">
+                {banners[currentSlide].subtitle}
+              </p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Carousel indicators dots */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                currentSlide === idx ? 'w-4 bg-white' : 'w-1 bg-white/40'
+              }`}
+              aria-label={`Slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* 4. Mobile Deals of the Day Box */}
+      <div className="w-full bg-white rounded-[20px] p-4.5 shadow-soft border border-brand-border flex flex-col gap-4">
+        <div className="flex justify-between items-center border-b border-brand-border pb-3 leading-none select-none">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black text-brand-graphite uppercase tracking-wide font-heading">Deals of the Day</span>
+            <div className="flex items-center gap-1 text-[8.5px] text-brand-red font-black bg-red-50 border border-brand-red/10 px-2 py-0.5 rounded-full font-numbers">
               <Clock size={8} />
-              <span>{formatNumber(timeLeft.hours)}h {formatNumber(timeLeft.minutes)}m</span>
+              <span>{formatNumber(timeLeft.hours)}h {formatNumber(timeLeft.minutes)}m {formatNumber(timeLeft.seconds)}s</span>
             </div>
           </div>
           <button
             onClick={() => navigateTo('search')}
-            className="text-[10px] font-extrabold text-[#2874F0] uppercase tracking-wider"
+            className="text-[9.5px] font-black text-brand-blue uppercase tracking-widest flex items-center gap-0.5"
           >
-            See All
+            <span>See All</span>
+            <ChevronRight size={10} />
           </button>
         </div>
 
-        {/* Scrollable Deals */}
-        <div className="w-full flex gap-3.5 overflow-x-auto no-scrollbar">
+        {/* Scrollable Deals list */}
+        <div className="w-full flex gap-4 overflow-x-auto no-scrollbar scroll-smooth">
           {shopProducts.map(product => {
             const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
             const isWishlisted = wishlist[product.id];
@@ -107,35 +159,99 @@ export const VerticalShopMobile: React.FC = () => {
               <div
                 key={product.id}
                 onClick={() => navigateTo('detail', product.id)}
-                className="w-28 shrink-0 flex flex-col text-left cursor-pointer group relative"
+                className="w-[110px] shrink-0 flex flex-col text-left cursor-pointer group relative"
               >
-                {/* Wishlist Button */}
-                <button
+                {/* Wishlist Heart */}
+                <motion.button
+                  whileTap={{ scale: 0.8 }}
                   onClick={(e) => toggleWishlist(product.id, e)}
-                  className="absolute top-1 right-1 p-1 rounded-full bg-white/95 text-gray-400 hover:text-[#E53935] shadow-sm border border-fk-border transition-colors z-10"
+                  className="absolute top-1 right-1 p-1 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
                 >
-                  <Heart size={10} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                </button>
+                  <Heart size={10} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                </motion.button>
 
-                <div className="w-28 h-28 border border-fk-border rounded-md flex items-center justify-center p-2 bg-slate-50 mb-1.5 overflow-hidden">
-                  <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform" />
+                <div className="w-[110px] h-[110px] border border-brand-border rounded-[20px] flex items-center justify-center p-2.5 bg-brand-elevated mb-2 overflow-hidden shadow-soft">
+                  <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain" />
                 </div>
-                <h4 className="text-[10px] font-bold text-[#172337] line-clamp-1 leading-snug">{product.title}</h4>
-                <span className="text-[10px] font-extrabold text-[#172337] mt-0.5">₹{product.price.toLocaleString('en-IN')}</span>
-                <span className="text-[9px] font-bold text-[#FF6B00]">{discount}% OFF</span>
+                <h4 className="text-[10px] font-bold text-brand-graphite line-clamp-1 leading-snug font-heading px-1">{product.title}</h4>
+                <span className="text-[10px] font-extrabold text-brand-graphite mt-0.5 font-numbers px-1">₹{product.price.toLocaleString('en-IN')}</span>
+                <span className="text-[8.5px] font-black text-brand-orange uppercase tracking-wider font-numbers px-1 mt-0.5">{discount}% OFF</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Double Column Feed for Mobiles */}
+      {/* 4.5. Trust Badges Row (Zepto / Blinkit style) */}
+      <div className="w-full bg-white rounded-[20px] p-3.5 border border-brand-border shadow-soft grid grid-cols-4 gap-1 select-none">
+        {[
+          { title: 'Free Delivery', desc: 'Above ₹199', icon: Truck, color: 'text-emerald-600 bg-emerald-50' },
+          { title: 'Best Quality', desc: '100% Premium', icon: Award, color: 'text-blue-600 bg-blue-50' },
+          { title: 'Easy Returns', desc: 'Within 7 Days', icon: RotateCcw, color: 'text-orange-600 bg-orange-50' },
+          { title: 'Secure Pay', desc: '100% Safe', icon: ShieldCheck, color: 'text-indigo-600 bg-indigo-50' }
+        ].map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <div key={idx} className="flex flex-col items-center text-center p-1 relative border-r border-brand-border last:border-0">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${item.color} shadow-soft`}>
+                <Icon size={12} strokeWidth={2.5} />
+              </div>
+              <span className="text-[8.5px] font-black text-brand-graphite leading-none tracking-tight font-heading">{item.title}</span>
+              <span className="text-[7px] font-bold text-brand-slate mt-0.5 leading-none">{item.desc}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 4.8. Top Brands Section (Mobile reference layout) */}
+      <div className="w-full flex flex-col gap-3">
+        <div className="flex justify-between items-center leading-none">
+          <span className="text-xs font-black text-brand-graphite uppercase tracking-wide font-heading">Top Brands</span>
+          <button
+            onClick={() => navigateTo('search')}
+            className="text-[9.5px] font-black text-brand-blue uppercase tracking-widest flex items-center gap-0.5"
+          >
+            <span>View All</span>
+            <ChevronRight size={10} />
+          </button>
+        </div>
+        <div className="w-full flex gap-3 overflow-x-auto no-scrollbar scroll-smooth py-1">
+          {[
+            { name: 'boAt', style: 'font-black tracking-tighter text-red-600' },
+            { name: 'Apple', icon: Apple, style: 'font-extrabold text-neutral-850' },
+            { name: 'SAMSUNG', style: 'font-black tracking-widest text-blue-800' },
+            { name: 'ONEPLUS', style: 'font-bold tracking-tight text-red-650' },
+            { name: 'NIKE', style: 'font-black italic tracking-widest text-neutral-900' },
+            { name: 'PHILIPS', style: 'font-black tracking-wide text-blue-900' }
+          ].map((brand, idx) => {
+            const Icon = brand.icon;
+            return (
+              <div 
+                key={idx}
+                onClick={() => { setSearchQuery(brand.name); navigateTo('search'); }}
+                className="px-6 py-4.5 bg-white border border-brand-border rounded-card flex items-center justify-center shrink-0 min-w-[92px] h-[48px] shadow-soft hover:shadow-premium active:scale-95 transition-all cursor-pointer"
+              >
+                {Icon ? (
+                  <div className="flex items-center gap-1">
+                    <Icon size={12} className="fill-neutral-900 text-neutral-900" />
+                    <span className="text-[10px] font-black">{brand.name}</span>
+                  </div>
+                ) : (
+                  <span className={`text-[10px] ${brand.style}`}>{brand.name}</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 5. Mobile Product Grid Feed */}
       <div className="w-full flex flex-col gap-2">
-        <div className="flex items-center justify-between border-b border-fk-border pb-1.5 mt-2.5">
-          <span className="text-xs font-bold text-[#172337] uppercase tracking-wider">Suggested for You</span>
+        <div className="flex items-center justify-between border-b border-brand-border pb-2.5 mt-2.5 leading-none">
+          <span className="text-[10.5px] font-black text-brand-graphite uppercase tracking-wider font-heading">Suggested for You</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3 select-none">
           {shopProducts.map(product => {
             const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
             const isWishlisted = wishlist[product.id];
@@ -143,40 +259,49 @@ export const VerticalShopMobile: React.FC = () => {
               <div
                 key={product.id}
                 onClick={() => navigateTo('detail', product.id)}
-                className="bg-white border border-fk-border rounded-md p-3 flex flex-col cursor-pointer relative shadow-sm"
+                className="bg-white border border-brand-border rounded-[20px] p-3 flex flex-col cursor-pointer relative shadow-soft active:scale-[0.98] transition-transform"
               >
-                {/* Wishlist Button */}
-                <button
+                {/* Wishlist Heart */}
+                <motion.button
+                  whileTap={{ scale: 0.8 }}
                   onClick={(e) => toggleWishlist(product.id, e)}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-gray-400 hover:text-[#E53935] shadow-xs border border-fk-border transition-colors z-10"
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
                 >
-                  <Heart size={11} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                </button>
+                  <Heart size={11} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                </motion.button>
 
                 {product.isAssured && (
                   <img
                     src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
                     alt="Assured"
-                    className="h-3 object-contain absolute top-2.5 left-2.5 z-10"
+                    className="h-3 object-contain absolute top-2.5 left-2.5 z-10 shadow-soft"
                   />
                 )}
-                <div className="w-full aspect-square flex items-center justify-center mb-2.5 bg-slate-50 rounded p-1.5 overflow-hidden">
+                
+                {/* Image panel */}
+                <div className="w-full aspect-square flex items-center justify-center mb-3 bg-brand-elevated rounded-[20px] p-2 overflow-hidden shadow-soft border border-brand-border/40">
                   <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain" />
                 </div>
-                <h3 className="text-[10px] font-bold text-[#172337] line-clamp-2 leading-snug mb-1 min-h-[30px]">
+                
+                {/* Content */}
+                <h3 className="text-[10px] font-bold text-brand-graphite line-clamp-2 leading-snug mb-1 min-h-[30px] font-heading px-0.5">
                   {product.title}
                 </h3>
-                <div className="flex items-center gap-1.5 mb-1.5 mt-auto leading-none">
-                  <div className="flex items-center gap-0.5 bg-[#16A34A] text-white font-extrabold text-[8px] px-1 py-0.2 rounded">
+                
+                {/* Rating Count */}
+                <div className="flex items-center gap-1.5 mb-2 mt-auto leading-none px-0.5">
+                  <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-extrabold text-[8px] px-1.5 py-0.5 rounded shadow-soft font-numbers">
                     <span>{product.rating}</span>
-                    <Star size={7} className="fill-white text-white" />
+                    <Star size={7} className="fill-brand-green text-brand-green" />
                   </div>
-                  <span className="text-[9px] text-[#64748B] font-bold">({product.ratingCount.toLocaleString('en-IN')})</span>
+                  <span className="text-[9px] text-brand-slate font-bold font-numbers">({product.ratingCount.toLocaleString('en-IN')})</span>
                 </div>
-                <div className="flex items-baseline gap-1 mt-1 leading-none">
-                  <span className="text-[11px] font-extrabold text-[#172337]">₹{product.price.toLocaleString('en-IN')}</span>
-                  <span className="text-[9px] text-[#64748B] line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                  <span className="text-[8px] font-bold text-[#FF6B00]">{discount}% Off</span>
+                
+                {/* Price block details */}
+                <div className="flex items-baseline gap-1 mt-1 leading-none font-numbers px-0.5">
+                  <span className="text-[11px] font-extrabold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                  <span className="text-[9px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                  <span className="text-[8px] font-black text-brand-orange uppercase tracking-wider">{discount}% Off</span>
                 </div>
               </div>
             );

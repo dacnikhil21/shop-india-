@@ -1,180 +1,143 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/useMediaQuery';
-import { User, MapPin, Gift, Save, CheckCircle2, RefreshCw } from 'lucide-react';
+import { User, MapPin, ShieldCheck, Mail, Phone, Home, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const ProfilePage: React.FC = () => {
-  const { location, setLocation, clearCart, currentVertical } = useApp();
+  const { location, setLocation } = useApp();
   const isMobile = useIsMobile();
-
-  // Editable Profile state
-  const [name, setName] = useState('User Guest');
-  const [email, setEmail] = useState('guest@shopindia.com');
-  const [phone, setPhone] = useState('+91 98765 43210');
+  const [newAddress, setNewAddress] = useState('');
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleSaveAddress = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    if (newAddress.trim()) {
+      setLocation(newAddress);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    }
   };
 
-  const handleResetApp = () => {
-    localStorage.removeItem('shopindia_cart');
-    localStorage.removeItem('shopindia_orders');
-    clearCart();
-    window.location.reload();
-  };
-
-  const isServices = currentVertical === 'services';
-
-  // Desktop Page Layout
   const renderDesktop = () => {
     return (
-      <div className="max-w-4xl mx-auto px-12 py-8 text-left select-none text-[#172337]">
-        <h1 className={`text-xl font-bold mb-6 ${isServices ? 'text-white' : 'text-[#172337]'}`}>
-          My Profile & Settings
+      <div className="max-w-7xl mx-auto py-8 px-12 text-left select-none text-brand-graphite font-sans">
+        <h1 className="text-xl font-bold mb-6 flex items-center gap-2.5 font-heading uppercase tracking-wider">
+          <User size={20} className="text-brand-blue" />
+          <span>My Profile & Settings</span>
         </h1>
 
-        <div className="grid grid-cols-3 gap-6">
-          {/* Left Column: Account Details Form (Span 2) */}
-          <div className="col-span-2 flex flex-col gap-6">
-            <form onSubmit={handleProfileSave} className={`border rounded p-5 flex flex-col gap-4 ${
-              isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white border-fk-border shadow-sm'
-            }`}>
-              <span className="font-extrabold text-sm uppercase tracking-wide border-b border-fk-border pb-2.5 mb-2 flex items-center gap-2">
-                <User size={16} className="text-[#2874F0]" />
-                <span>Personal Information</span>
-              </span>
+        <div className="grid grid-cols-3 gap-8">
+          {/* Left Column: Account Details (Span 1) */}
+          <div className="col-span-1 flex flex-col gap-5 select-none">
+            {/* Profile Brief Info */}
+            <div className="bg-white border border-brand-border rounded-card p-6 shadow-premium flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue text-lg font-black mb-3 border border-brand-blue/10">
+                U
+              </div>
+              <h2 className="font-extrabold text-sm text-brand-graphite mb-1.5 font-heading">User Guest</h2>
+              <span className="text-[10px] text-brand-slate font-extrabold mb-4">guest@shopindia.com</span>
+              <div className="flex items-center gap-1 text-[9.5px] text-brand-blue bg-blue-50 border border-brand-blue/10 px-3.5 py-1 rounded-full font-black uppercase tracking-wider select-none leading-none">
+                <Sparkles size={11} className="fill-brand-blue text-brand-blue animate-pulse" />
+                <span>ShopIndia Plus</span>
+              </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="p-name" className="text-[10px] font-bold text-[#64748B] uppercase">Full Name</label>
-                  <input
-                    id="p-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="p-2.5 border border-fk-border rounded text-xs font-semibold focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0]"
-                  />
+            {/* Verification status details */}
+            <div className="bg-white border border-brand-border rounded-card p-6 shadow-premium text-left flex flex-col gap-3">
+              <div className="flex gap-2.5 items-center">
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-brand-blue">
+                  <ShieldCheck size={16} />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="p-phone" className="text-[10px] font-bold text-[#64748B] uppercase">Phone Number</label>
-                  <input
-                    id="p-phone"
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="p-2.5 border border-fk-border rounded text-xs font-semibold focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0]"
-                  />
+                <div className="flex flex-col leading-tight">
+                  <span className="font-extrabold text-xs text-brand-graphite font-heading">Verified Account</span>
+                  <span className="text-[9.5px] text-brand-slate font-bold">100% Secure Shopping</span>
                 </div>
               </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="p-email" className="text-[10px] font-bold text-[#64748B] uppercase">Email Address</label>
-                <input
-                  id="p-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="p-2.5 border border-fk-border rounded text-xs font-semibold focus:outline-none focus:border-[#2874F0] focus:ring-1 focus:ring-[#2874F0] w-full"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-[#2874F0] hover:bg-[#1557D6] text-white font-bold text-xs rounded uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all transform active:scale-95"
-                >
-                  <Save size={14} />
-                  <span>Save Profile</span>
-                </button>
-
-                {isSaved && (
-                  <span className="text-xs text-[#16A34A] font-bold flex items-center gap-1">
-                    <CheckCircle2 size={14} /> Profile details saved successfully!
-                  </span>
-                )}
-              </div>
-            </form>
-
-            {/* Address Management panel */}
-            <div className={`border rounded p-5 flex flex-col gap-4 ${
-              isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white border-fk-border shadow-sm'
-            }`}>
-              <span className="font-extrabold text-sm uppercase tracking-wide border-b border-fk-border pb-2.5 mb-2 flex items-center gap-2">
-                <MapPin size={16} className="text-[#2874F0]" />
-                <span>Delivery Addresses</span>
-              </span>
-
-              <div className="flex flex-col gap-3">
-                {[
-                  { label: 'Home Address', val: 'Home - Flat 302, MG Road, Bengaluru' },
-                  { label: 'Office Address', val: 'Office - Tower B, Embassy Tech Park, Bengaluru' }
-                ].map(addr => {
-                  const isCurrent = location === addr.val;
-                  return (
-                    <div
-                      key={addr.val}
-                      onClick={() => setLocation(addr.val)}
-                      className={`p-3.5 border rounded-md cursor-pointer transition-all flex justify-between items-center ${
-                        isCurrent
-                          ? 'border-[#2874F0] bg-blue-50/20'
-                          : 'border-fk-border hover:border-gray-400'
-                      }`}
-                    >
-                      <div className="flex flex-col text-left leading-relaxed">
-                        <span className="font-bold text-xs text-[#172337] dark:text-white">{addr.label}</span>
-                        <span className="text-xs text-[#64748B] font-semibold">{addr.val}</span>
-                      </div>
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        isCurrent ? 'border-[#2874F0] bg-[#2874F0] text-white' : 'border-gray-300'
-                      }`}>
-                        {isCurrent && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <p className="text-[10.5px] text-brand-slate leading-relaxed border-t border-brand-border pt-3 font-semibold">
+                Your guest profile is verified with verified delivery addresses. No additional verification needed.
+              </p>
             </div>
           </div>
 
-          {/* Right Column: Plus coins & Reset actions (Span 1) */}
-          <div className="col-span-1 flex flex-col gap-4">
-            {/* Coins wallet panel */}
-            <div className={`border rounded p-5 flex flex-col gap-3 text-center ${
-              isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white border-fk-border shadow-sm'
-            }`}>
-              <div className="w-12 h-12 rounded-full bg-yellow-50 text-[#FF6B00] flex items-center justify-center mx-auto mb-1 border border-yellow-100">
-                <Gift size={22} className="fill-[#ffe500] text-[#FF6B00]" />
+          {/* Right Column: Address and Personal Info Form (Span 2) */}
+          <div className="col-span-2 flex flex-col gap-6">
+            {/* Personal info form */}
+            <div className="bg-white border border-brand-border rounded-card p-6 shadow-premium text-left">
+              <span className="text-brand-graphite font-black text-xs uppercase tracking-wider font-heading border-b border-brand-border/10 pb-3 block mb-5">
+                Personal Information
+              </span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5 leading-none">
+                  <label className="text-[9.5px] font-black text-brand-slate uppercase tracking-wider flex items-center gap-1.5">
+                    <Mail size={12} /> Email Address
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value="guest@shopindia.com"
+                    className="p-3 border border-brand-border bg-slate-50 rounded-input text-xs font-bold text-brand-slate cursor-not-allowed"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 leading-none">
+                  <label className="text-[9.5px] font-black text-brand-slate uppercase tracking-wider flex items-center gap-1.5">
+                    <Phone size={12} /> Contact Number
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value="+91 98765 43210"
+                    className="p-3 border border-brand-border bg-slate-50 rounded-input text-xs font-bold text-brand-slate cursor-not-allowed"
+                  />
+                </div>
               </div>
-              <span className="font-extrabold text-sm text-[#172337] dark:text-white">ShopIndia Plus Rewards</span>
-              <div className="flex flex-col gap-1 leading-none mb-2">
-                <span className="text-2xl font-black text-[#FF6B00]">250</span>
-                <span className="text-[9px] text-[#64748B] font-bold uppercase tracking-wider">Supercoins available</span>
-              </div>
-              <p className="text-[10px] text-[#64748B] leading-relaxed border-t border-fk-border pt-3 font-medium">
-                Use supercoins to claim discount coupons on Shop, 10 Min grocery checkouts, and premium AC servicing.
-              </p>
             </div>
 
-            {/* Clear data system manager */}
-            <div className={`border rounded p-5 flex flex-col gap-3.5 ${
-              isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white border-fk-border shadow-sm'
-            }`}>
-              <span className="font-bold text-xs uppercase tracking-wide text-[#64748B] block border-b border-fk-border pb-2.5">
-                Developer Settings
+            {/* Address Details Management Form */}
+            <div className="bg-white border border-brand-border rounded-card p-6 shadow-premium text-left">
+              <span className="text-brand-graphite font-black text-xs uppercase tracking-wider font-heading border-b border-brand-border/10 pb-3 block mb-5">
+                Manage Delivery Addresses
               </span>
-              <p className="text-[10px] text-[#64748B] leading-relaxed font-medium">
-                Wipe all cached carts, addresses, and order tracking lists to test the checkout experience from scratch.
-              </p>
-              <button
-                onClick={handleResetApp}
-                className="w-full py-2 bg-[#E53935] hover:bg-red-700 text-white font-bold text-xs rounded uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <RefreshCw size={12} />
-                <span>Reset Local State</span>
-              </button>
+
+              {/* Current Active Address Card */}
+              <div className="border border-brand-border bg-slate-50/50 rounded-card p-4.5 mb-6 flex gap-3.5 items-start">
+                <Home size={16} className="text-brand-blue shrink-0 mt-0.5" />
+                <div className="flex flex-col leading-tight">
+                  <span className="font-extrabold text-xs text-brand-graphite font-heading mb-1">Active Address</span>
+                  <span className="text-xs text-brand-slate font-bold">{location}</span>
+                </div>
+              </div>
+
+              {/* Set new address form (16px inputs) */}
+              <form onSubmit={handleSaveAddress} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5 leading-none">
+                  <label htmlFor="p-address" className="text-[9.5px] font-black text-brand-slate uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin size={12} /> Enter New Address details
+                  </label>
+                  <textarea
+                    id="p-address"
+                    rows={3}
+                    placeholder="Enter house no, street name, layout name, city, postal code..."
+                    value={newAddress}
+                    onChange={(e) => setNewAddress(e.target.value)}
+                    className="p-3 border border-brand-border bg-slate-50/50 rounded-input text-xs font-bold focus:outline-none focus:border-brand-blue text-brand-graphite"
+                  />
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  {isSaved && (
+                    <span className="text-xs font-bold text-brand-green">
+                      ✓ Active address updated successfully!
+                    </span>
+                  )}
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    className="px-6 py-2.5 bg-brand-blue hover:bg-blue-650 text-white font-extrabold text-xs rounded-button uppercase tracking-wider shadow-soft ml-auto"
+                  >
+                    Save Address
+                  </motion.button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -182,104 +145,76 @@ export const ProfilePage: React.FC = () => {
     );
   };
 
-  // Mobile Page Layout
   const renderMobile = () => {
     return (
-      <div className="w-full flex flex-col bg-slate-50 min-h-screen text-left pb-20 select-none text-[#172337]">
-        {/* Header */}
-        <div className={`p-4 border-b ${
-          isServices ? 'bg-zinc-900 border-services-border text-white' : 'bg-white border-fk-border text-slate-800'
-        }`}>
-          <span className="font-extrabold text-xs tracking-wide">My Account Settings</span>
+      <div className="w-full flex flex-col bg-[#FAF9F6] min-h-screen text-left pb-20 select-none text-brand-graphite font-sans">
+        <div className="px-4 py-3.5 sticky top-12 z-30 bg-white border-b border-brand-border flex items-center justify-between">
+          <span className="font-extrabold text-xs uppercase tracking-wider font-heading">My Profile</span>
         </div>
 
-        {/* Profile Card & form fields */}
         <div className="p-3 flex flex-col gap-3">
-          <form onSubmit={handleProfileSave} className={`border border-fk-border rounded-lg p-4 flex flex-col gap-3.5 ${
-            isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white shadow-sm'
-          }`}>
-            <span className="font-extrabold text-xs border-b border-fk-border pb-2 flex items-center gap-2">
-              <User size={14} className="text-[#2874F0]" /> Account Details
-            </span>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor="pm-name" className="text-[8px] font-bold text-slate-400 uppercase">Your Name</label>
-              <input
-                id="pm-name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="p-2 border border-fk-border rounded text-xs font-semibold focus:outline-none focus:border-[#2874F0]"
-              />
+          {/* Profile overview */}
+          <div className="bg-white border border-brand-border rounded-[20px] p-5 flex flex-col items-center text-center shadow-soft">
+            <div className="w-12 h-12 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue text-base font-black mb-2 border border-brand-blue/10">
+              U
             </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="pm-phone" className="text-[8px] font-bold text-slate-400 uppercase">Phone Number</label>
-              <input
-                id="pm-phone"
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="p-2 border border-fk-border rounded text-xs font-semibold focus:outline-none focus:border-[#2874F0]"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-2 bg-[#2874F0] text-white font-extrabold text-[10px] rounded uppercase tracking-wide mt-1"
-            >
-              Save Profile Details
-            </button>
-          </form>
-
-          {/* Saved delivery locations */}
-          <div className={`border border-fk-border rounded-lg p-4 flex flex-col gap-3 ${
-            isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white shadow-sm'
-          }`}>
-            <span className="font-extrabold text-xs border-b border-fk-border pb-2 flex items-center gap-2">
-              <MapPin size={14} className="text-[#2874F0]" /> Saved Locations
-            </span>
-
-            <div className="flex flex-col gap-2">
-              {[
-                { label: 'Home Address', val: 'Home - Flat 302, MG Road, Bengaluru' },
-                { label: 'Office Address', val: 'Office - Tower B, Embassy Tech Park, Bengaluru' }
-              ].map(addr => {
-                const isCurrent = location === addr.val;
-                return (
-                  <div
-                    key={addr.val}
-                    onClick={() => setLocation(addr.val)}
-                    className={`p-2.5 border rounded flex justify-between items-center ${
-                      isCurrent ? 'border-[#2874F0] bg-blue-50/10' : 'border-fk-border'
-                    }`}
-                  >
-                    <div className="flex flex-col text-left leading-tight">
-                      <span className="font-bold text-[10px] text-gray-800 dark:text-white">{addr.label}</span>
-                      <span className="text-[9px] text-slate-400 truncate max-w-[200px]">{addr.val}</span>
-                    </div>
-                    <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                      isCurrent ? 'border-[#2874F0] bg-[#2874F0] text-white' : 'border-gray-300'
-                    }`}>
-                      {isCurrent && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </div>
-                  </div>
-                );
-              })}
+            <h2 className="font-extrabold text-xs text-brand-graphite font-heading">User Guest</h2>
+            <span className="text-[9.5px] text-brand-slate font-bold mb-3.5">guest@shopindia.com</span>
+            <div className="flex items-center gap-1 text-[8.5px] text-brand-blue bg-blue-50 border border-brand-blue/10 px-3 py-0.5 rounded-full font-black uppercase tracking-wider">
+              <Sparkles size={10} className="fill-brand-blue text-brand-blue" />
+              <span>Plus Customer</span>
             </div>
           </div>
 
-          {/* Reset App */}
-          <div className={`border border-fk-border rounded-lg p-4 flex flex-col gap-2 ${
-            isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white shadow-sm'
-          }`}>
-            <span className="font-extrabold text-xs border-b border-fk-border pb-2 text-[#E53935]">Developer Option</span>
-            <button
-              onClick={handleResetApp}
-              className="w-full py-2 bg-[#E53935] hover:bg-red-700 text-white font-extrabold text-[10px] rounded uppercase tracking-wider flex items-center justify-center gap-1.5"
-            >
-              <RefreshCw size={10} />
-              <span>Reset State & Reload</span>
-            </button>
+          {/* Details input form */}
+          <div className="bg-white border border-brand-border rounded-[20px] p-4 shadow-soft flex flex-col gap-3 text-left">
+            <span className="text-[9px] uppercase font-black tracking-widest text-brand-slate font-heading border-b border-brand-border/10 pb-2 mb-1">
+              Account Data
+            </span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[8.5px] font-black text-brand-slate uppercase tracking-wider">Email ID</span>
+              <span className="text-xs font-bold text-brand-graphite bg-slate-50 border border-brand-border p-2.5 rounded-input">guest@shopindia.com</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[8.5px] font-black text-brand-slate uppercase tracking-wider">Contact No</span>
+              <span className="text-xs font-bold text-brand-graphite bg-slate-50 border border-brand-border p-2.5 rounded-input">+91 98765 43210</span>
+            </div>
+          </div>
+
+          {/* Address manager */}
+          <div className="bg-white border border-brand-border rounded-[20px] p-4 shadow-soft text-left flex flex-col gap-3">
+            <span className="text-[9px] uppercase font-black tracking-widest text-brand-slate font-heading border-b border-brand-border/10 pb-2 mb-1">
+              Delivery Addresses
+            </span>
+            <div className="p-3 bg-slate-50/50 rounded-[20px] border border-brand-border flex gap-2.5 items-start">
+              <Home size={14} className="text-brand-blue shrink-0 mt-0.5" />
+              <div className="flex flex-col leading-tight">
+                <span className="font-extrabold text-[10px] text-brand-graphite font-heading">Deliver To:</span>
+                <span className="text-[10px] text-brand-slate font-bold mt-0.5">{location}</span>
+              </div>
+            </div>
+
+            {/* Set address */}
+            <form onSubmit={handleSaveAddress} className="flex flex-col gap-2.5 mt-2">
+              <span className="text-[8.5px] font-black text-brand-slate uppercase tracking-wider">Enter New Details</span>
+              <textarea
+                rows={2}
+                value={newAddress}
+                onChange={(e) => setNewAddress(e.target.value)}
+                placeholder="House no, street name, layout, city..."
+                className="p-3 border border-brand-border rounded-input text-xs font-bold bg-slate-50/50 text-brand-graphite focus:outline-none focus:border-brand-blue"
+              />
+              <div className="flex items-center justify-between">
+                {isSaved && <span className="text-[9px] font-bold text-brand-green">✓ Saved</span>}
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  className="px-5 py-2.5 bg-brand-blue text-white rounded-button text-[10px] font-black uppercase tracking-wider shadow ml-auto"
+                >
+                  Save Address
+                </motion.button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

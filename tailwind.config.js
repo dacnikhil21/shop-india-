@@ -7,51 +7,75 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Design System Tokens
+        brand: {
+          bg: '#FAF9F6', // Warm White
+          card: '#FFFFFF', // Pure White
+          elevated: '#FAFAFA', // Soft White
+          graphite: '#1C1C1E', // Graphite
+          slate: '#86868B', // Slate Grey
+          blue: '#0F2C59', // Deep Luxury Brand Navy
+          green: '#10B981', // Emerald Green
+          orange: '#FF6600', // Premium Orange
+          red: '#FF3366', // Soft Red (Wishlist)
+          border: '#E5E5EA' // Softer grey border
+        },
         fk: {
-          blue: '#2874F0',
+          blue: '#0F2C59', // Deep Luxury Brand Navy
           yellow: '#ffe500',
-          darkBlue: '#1557D6',
-          text: '#172337',
-          gray: '#64748B',
-          lightGray: '#F8FAFC',
-          border: '#E5E7EB',
-          orange: '#FF6B00',
-          red: '#E53935'
+          darkBlue: '#0A2540',
+          text: '#1C1C1E', // Graphite
+          gray: '#86868B', // Slate Grey
+          lightGray: '#FAF9F6', // Warm White
+          border: '#E5E5EA', // Softer grey border
+          orange: '#FF6600', // Premium Orange
+          red: '#FF3366' // Soft Red
         },
         quick: {
-          green: '#16A34A',
-          lightGreen: '#eefcf2',
+          green: '#10B981', // Emerald Green
+          lightGreen: '#ECFDF5',
           yellow: '#ffd600',
-          dark: '#1c1c1c',
-          gray: '#666666',
-          border: '#e8e8e8'
+          dark: '#1C1C1E',
+          gray: '#86868B',
+          border: '#E5E5EA'
         },
         services: {
-          gold: '#b8924b',
-          darkGold: '#99732e',
-          bg: '#0f0f11',
-          card: '#1c1c1e',
-          text: '#f5f5f7',
-          gray: '#a1a1a6',
-          border: '#2c2c2e'
+          gold: '#C5A880', // Luxury Gold
+          darkGold: '#A88D65',
+          bg: '#1C1C1E', // Graphite Dark Background
+          card: '#2C2C2E', // Apple style elevated dark grey card
+          text: '#F5F5F7',
+          gray: '#86868B',
+          border: '#2C2C2E'
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        numbers: ['Manrope', 'monospace']
       },
       boxShadow: {
-        md3_1: '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
-        md3_2: '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
-        md3_3: '0px 1px 3px 0px rgba(0, 0, 0, 0.30), 0px 4px 8px 3px rgba(0, 0, 0, 0.15)',
-        fk: '0 1px 2px 0 rgba(23, 35, 55, 0.05), 0 2px 4px 0 rgba(23, 35, 55, 0.04)',
-        fkHeader: '0 1px 1px 0 rgba(0,0,0,.16)',
-        fkCardHover: '0 12px 24px -4px rgba(23, 35, 55, 0.08), 0 4px 12px -2px rgba(23, 35, 55, 0.04), 0 0 1px 0 rgba(23, 35, 55, 0.12)'
+        premium: '0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01)',
+        elevated: '0 10px 24px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.01)',
+        'hover-lift': '0 24px 48px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.02)',
+        soft: '0 2px 8px rgba(0, 0, 0, 0.01)',
+        md3_1: '0 4px 12px rgba(0, 0, 0, 0.02)',
+        md3_2: '0 10px 24px rgba(0, 0, 0, 0.04)',
+        md3_3: '0 24px 48px rgba(0, 0, 0, 0.06)',
+        fk: '0 2px 8px rgba(0, 0, 0, 0.01)',
+        fkHeader: '0 1px 1px 0 rgba(0,0,0,.04)',
+        fkCardHover: '0 24px 48px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.02)'
       },
       borderRadius: {
-        'fk': '2px',
-        'fk-card': '4px',
-        'md3': '12px',
-        'md3-lg': '16px'
+        'fk': '14px', // Unified rounded corner values
+        'fk-card': '18px',
+        'md3': '14px',
+        'md3-lg': '18px',
+        input: '14px',
+        button: '14px',
+        card: '18px',
+        hero: '24px',
+        'bottom-nav': '20px'
       }
     },
   },

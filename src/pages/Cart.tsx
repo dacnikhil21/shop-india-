@@ -1,132 +1,291 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useIsMobile } from '../hooks/useMediaQuery';
-import { ShoppingCart, Trash2, Plus, Minus, ShieldCheck, ArrowRight, Home } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Ticket } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const CartPage: React.FC = () => {
-  const { cart, updateQuantity, removeFromCart, getCartTotal, placeOrder, navigateTo, currentVertical } = useApp();
+  const { cart, updateQuantity, removeFromCart, getCartTotal, clearCart, navigateTo } = useApp();
   const isMobile = useIsMobile();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponMsg, setCouponMsg] = useState<string | null>(null);
 
-  const totalItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = getCartTotal();
+  const discountVal = couponApplied ? Math.round(cartTotal * 0.1) : 0;
+  const deliveryCharges = cartTotal > 500 || cartTotal === 0 ? 0 : 49;
+  const finalTotal = cartTotal - discountVal + deliveryCharges;
 
-  // Calculate mock retail/original price total to show dynamic savings
-  const originalPriceTotal = cart.reduce((acc, item) => acc + item.product.originalPrice * item.quantity, 0);
-  const totalSavings = originalPriceTotal - cartTotal;
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (couponCode.toUpperCase() === 'WELCOME10') {
+      setCouponApplied(true);
+      setCouponMsg('Promo code "WELCOME10" applied! 10% instant checkout discount.');
+    } else {
+      setCouponMsg('Invalid coupon code. Try entering WELCOME10.');
+    }
+  };
 
-  const isServices = currentVertical === 'services';
+  const handleCheckout = () => {
+    // Proceed to checkout
+    clearCart();
+    navigateTo('orders');
+  };
 
-  if (cart.length === 0) {
-    return (
-      <div className="max-w-3xl mx-auto py-16 px-6 text-center select-none text-[#172337]">
-        <div className={`p-10 border rounded-lg flex flex-col items-center justify-center ${
-          isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white border-fk-border shadow-sm'
-        }`}>
-          <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-[#2874F0] mb-4">
-            <ShoppingCart size={36} />
-          </div>
-          <h2 className="text-base font-extrabold text-gray-900 mb-1 dark:text-white">Your Cart is Empty!</h2>
-          <p className="text-xs text-gray-400 max-w-sm mb-6 font-semibold">Explore our active catalogs and add some premium products or home services.</p>
-          <button
-            onClick={() => navigateTo('home')}
-            className="px-6 py-2.5 bg-[#2874F0] hover:bg-[#1557D6] text-white font-bold text-xs rounded uppercase tracking-wider shadow-sm transition-colors flex items-center gap-1.5"
-          >
-            <Home size={14} />
-            <span>Continue Shopping</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Desktop Page Layout
   const renderDesktop = () => {
     return (
-      <div className="max-w-7xl mx-auto px-12 py-8 grid grid-cols-3 gap-6 text-left select-none text-[#172337]">
-        {/* Left Side: Cart Items List (Span 2) */}
-        <div className="col-span-2 flex flex-col gap-4">
-          <div className={`border rounded-sm overflow-hidden ${
-            isServices ? 'bg-services-card border-services-border' : 'bg-white border-fk-border shadow-sm'
-          }`}>
-            <div className="p-4 border-b border-fk-border flex justify-between items-center bg-slate-50/60 leading-none">
-              <span className="font-extrabold text-sm uppercase tracking-wider text-slate-800">
-                ShopIndia Cart ({totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'})
-              </span>
-              <span className="text-xs text-[#64748B] font-bold">Deliver to: <strong className="text-[#172337] dark:text-white">Flat 302, Bengaluru</strong></span>
+      <div className="max-w-7xl mx-auto py-8 px-12 text-left select-none text-brand-graphite font-sans">
+        <h1 className="text-xl font-bold mb-6 flex items-center gap-2.5 font-heading uppercase tracking-wider">
+          <ShoppingCart size={20} className="text-brand-blue" />
+          <span>Shopping Cart ({cart.length} items)</span>
+        </h1>
+
+        {cart.length === 0 ? (
+          <div className="w-full py-20 bg-white border border-brand-border rounded-card flex flex-col items-center justify-center text-center p-6 shadow-premium">
+            <span className="text-4xl mb-4">🛒</span>
+            <h3 className="text-sm font-extrabold text-brand-graphite mb-1.5 font-heading">Your cart is empty</h3>
+            <p className="text-xs text-brand-slate max-w-sm mb-6 font-semibold">Explore our fresh catalog categories and fill up your box!</p>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigateTo('home')}
+              className="px-5 py-2.5 bg-brand-blue text-white rounded-button text-xs font-extrabold shadow-premium hover:bg-blue-650 transition-colors uppercase tracking-wider"
+            >
+              Start Shopping
+            </motion.button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-8">
+            {/* Left: Cart Items List (Span 2) */}
+            <div className="col-span-2 flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
+                {cart.map(item => {
+                  const itemDiscount = Math.round(((item.product.originalPrice - item.product.price) / item.product.originalPrice) * 100);
+                  return (
+                    <div
+                      key={`${item.product.id}-${item.product.deliveryTime || ''}`}
+                      className="bg-white border border-brand-border rounded-card p-5 flex gap-4.5 shadow-premium hover:border-brand-border/80 transition-all relative"
+                    >
+                      <div className="w-24 h-24 rounded-card overflow-hidden shrink-0 bg-brand-elevated border border-brand-border/40 p-2 flex items-center justify-center shadow-soft">
+                        <img src={item.product.image} alt={item.product.title} className="max-h-full max-w-full object-contain" />
+                      </div>
+
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start leading-none pr-8">
+                            <h3 className="font-extrabold text-xs text-brand-graphite line-clamp-1 hover:text-brand-blue cursor-pointer font-heading">
+                              {item.product.title}
+                            </h3>
+                            <button
+                              onClick={() => removeFromCart(item.product.id)}
+                              className="text-brand-slate hover:text-brand-red p-1 transition-colors"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          {item.product.specs?.['Weight'] && (
+                            <span className="text-[10px] text-brand-slate font-extrabold block mt-1">Pack Size: {item.product.specs['Weight']}</span>
+                          )}
+                          {item.product.deliveryTime && (
+                            <span className="text-[9.5px] font-extrabold text-brand-green bg-green-50 px-2 py-0.5 rounded w-max mt-2 block shadow-soft border border-brand-green/10 leading-none">
+                              Scheduled: {item.product.deliveryTime}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3 font-numbers">
+                          <div className="flex items-baseline gap-1.5 leading-none">
+                            <span className="text-sm font-extrabold text-brand-graphite">₹{item.product.price}</span>
+                            {item.product.originalPrice > item.product.price && (
+                              <>
+                                <span className="text-[10px] text-brand-slate line-through">₹{item.product.originalPrice}</span>
+                                <span className="text-[9.5px] font-black text-brand-orange uppercase tracking-wider">{itemDiscount}% off</span>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Plus Minus count */}
+                          <div className="flex items-center border border-brand-blue bg-brand-blue text-white rounded-button overflow-hidden text-xs font-bold shadow-soft">
+                            <button
+                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                              className="px-2 py-1.5 hover:bg-blue-600 transition-colors"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus size={11} strokeWidth={3} />
+                            </button>
+                            <span className="px-2.5 min-w-[20px] text-center select-none">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                              className="px-2 py-1.5 hover:bg-blue-600 transition-colors"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus size={11} strokeWidth={3} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* List items */}
-            <div className="flex flex-col">
+            {/* Right: Pricing Receipt column (Span 1) */}
+            <div className="col-span-1 flex flex-col gap-5">
+              {/* Coupon card */}
+              <div className="bg-white border border-brand-border rounded-card p-5 shadow-premium">
+                <span className="text-brand-graphite font-black text-xs uppercase tracking-wider flex items-center gap-2 mb-3.5 font-heading border-b pb-2">
+                  <Ticket size={15} className="text-brand-orange" />
+                  Apply Coupon Code
+                </span>
+                <form onSubmit={handleApplyCoupon} className="flex gap-2 leading-none">
+                  <input
+                    type="text"
+                    placeholder="Enter code e.g. WELCOME10"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-brand-border bg-slate-50 rounded-input text-xs font-bold focus:outline-none focus:border-brand-blue"
+                  />
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    className="px-4.5 bg-brand-blue text-white rounded-button text-[10px] font-black uppercase tracking-wider"
+                  >
+                    Apply
+                  </motion.button>
+                </form>
+                {couponMsg && (
+                  <span className={`text-[10px] font-bold block mt-2.5 leading-normal ${couponApplied ? 'text-brand-green' : 'text-brand-red'}`}>
+                    {couponMsg}
+                  </span>
+                )}
+              </div>
+
+              {/* Bill Details */}
+              <div className="bg-white border border-brand-border rounded-card p-5 shadow-premium flex flex-col gap-4 font-numbers select-none">
+                <span className="text-brand-graphite font-black text-xs uppercase tracking-wider font-heading border-b border-brand-border/10 pb-2 text-left">
+                  Bill & Pricing Receipt
+                </span>
+                <div className="flex flex-col gap-2.5 text-xs text-brand-slate font-bold">
+                  <div className="flex justify-between items-center">
+                    <span>Items Subtotal</span>
+                    <span className="text-brand-graphite">₹{cartTotal.toLocaleString('en-IN')}</span>
+                  </div>
+                  {couponApplied && (
+                    <div className="flex justify-between items-center text-brand-green">
+                      <span>Promo (WELCOME10 - 10%)</span>
+                      <span>- ₹{discountVal.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center border-b border-brand-border pb-3.5">
+                    <span>Delivery Charges</span>
+                    <span className={deliveryCharges === 0 ? 'text-brand-green' : 'text-brand-graphite'}>
+                      {deliveryCharges === 0 ? 'FREE' : `₹${deliveryCharges}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-black text-brand-graphite pt-1 leading-none">
+                    <span>Total Amount to Pay</span>
+                    <span>₹{finalTotal.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-brand-border pt-4 flex flex-col gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    onClick={handleCheckout}
+                    className="w-full py-3.5 bg-brand-green hover:bg-emerald-650 text-white rounded-button text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-premium"
+                  >
+                    <span>Proceed to Checkout</span>
+                    <ArrowRight size={14} />
+                  </motion.button>
+                  <div className="flex gap-2.5 items-center justify-center text-[10px] text-brand-slate font-extrabold select-none">
+                    <ShieldCheck size={14} className="text-brand-green" />
+                    <span>Safe payments & 100% genuine products</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderMobile = () => {
+    return (
+      <div className="w-full flex flex-col bg-[#FAF9F6] min-h-screen text-left pb-28 select-none text-brand-graphite font-sans">
+        <div className="px-4 py-3.5 sticky top-12 z-30 bg-white border-b border-brand-border flex items-center justify-between">
+          <span className="font-extrabold text-xs uppercase tracking-wider font-heading">Shopping Cart ({cart.length})</span>
+        </div>
+
+        {cart.length === 0 ? (
+          <div className="m-4 py-20 bg-white border border-brand-border rounded-[20px] flex flex-col items-center justify-center text-center p-6 shadow-soft select-none">
+            <span className="text-3xl mb-4">🛒</span>
+            <h3 className="text-xs font-extrabold text-brand-graphite mb-1 font-heading">Your cart is empty</h3>
+            <p className="text-[10px] text-brand-slate max-w-xs mb-5 font-semibold">Fill your cart with fresh selections!</p>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigateTo('home')}
+              className="px-4 py-2 bg-brand-blue text-white rounded-button text-[9.5px] font-black shadow uppercase tracking-wider"
+            >
+              Shop Now
+            </motion.button>
+          </div>
+        ) : (
+          <div className="p-3 flex flex-col gap-3">
+            {/* List */}
+            <div className="flex flex-col gap-2.5">
               {cart.map(item => {
-                const discount = Math.round(((item.product.originalPrice - item.product.price) / item.product.originalPrice) * 100);
                 return (
                   <div
-                    key={item.product.id}
-                    className="p-5 border-b border-fk-border last:border-0 flex gap-5 hover:bg-slate-50/20 transition-colors duration-200"
+                    key={`${item.product.id}-${item.product.deliveryTime || ''}`}
+                    className="bg-white border border-brand-border rounded-[20px] p-3 flex gap-3 shadow-soft relative"
                   >
-                    {/* Item picture */}
-                    <div className="w-[110px] h-[110px] border border-fk-border rounded flex items-center justify-center p-2 shrink-0 bg-white">
+                    <div className="w-20 h-20 bg-brand-elevated border border-brand-border/40 rounded-[20px] p-1.5 flex items-center justify-center shrink-0 shadow-soft">
                       <img src={item.product.image} alt={item.product.title} className="max-h-full max-w-full object-contain" />
                     </div>
 
-                    {/* Item Details */}
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="flex justify-between gap-4 items-start leading-none">
-                          <h3
-                            onClick={() => navigateTo('detail', item.product.id)}
-                            className="font-bold text-sm text-[#172337] hover:text-[#2874F0] cursor-pointer line-clamp-1 dark:text-white"
-                          >
-                            {item.product.title}
-                          </h3>
+                        <div className="flex justify-between items-start leading-none pr-6">
+                          <h3 className="font-bold text-[10.5px] text-brand-graphite line-clamp-1 font-heading">{item.product.title}</h3>
                           <button
                             onClick={() => removeFromCart(item.product.id)}
-                            className="text-slate-400 hover:text-[#E53935] transition-colors"
-                            aria-label="Remove item"
+                            className="text-brand-slate p-0.5"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={12} />
                           </button>
                         </div>
-                        <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider block mt-1.5">
-                          {item.product.brand} • {item.product.specs?.['Weight'] || item.product.specs?.['Volume'] || 'Specs'}
-                        </span>
-                        <span className="text-xs text-[#16A34A] font-bold block mt-2 flex items-center gap-1">
-                          🕒 Scheduled: {item.product.deliveryTime}
-                        </span>
+                        {item.product.deliveryTime && (
+                            <span className="text-[8px] font-black text-brand-green bg-green-50 px-1.5 py-0.2 rounded w-max mt-1.5 block shadow-soft">
+                              Slot: {item.product.deliveryTime}
+                            </span>
+                          )}
                       </div>
 
-                      {/* Quantity & price adjustment */}
-                      <div className="flex justify-between items-center mt-3">
-                        <div className="flex items-center border border-fk-border rounded overflow-hidden text-xs font-bold bg-white">
-                          <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                            className="p-1.5 hover:bg-slate-50 transition-colors"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus size={11} />
-                          </button>
-                          <span className="px-3 min-w-[20px] text-center select-none">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                            className="p-1.5 hover:bg-slate-50 transition-colors"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus size={11} />
-                          </button>
+                      <div className="flex items-center justify-between font-numbers mt-2.5">
+                        <div className="flex items-baseline gap-1 mt-1 leading-none">
+                          <span className="text-xs font-extrabold text-brand-graphite">₹{item.product.price}</span>
+                          {item.product.originalPrice > item.product.price && (
+                            <span className="text-[9px] text-brand-slate line-through">₹{item.product.originalPrice}</span>
+                          )}
                         </div>
 
-                        <div className="flex items-baseline gap-2 leading-none">
-                          <span className="text-base font-extrabold text-[#172337] dark:text-white">
-                            ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
-                          </span>
-                          {item.product.originalPrice > item.product.price && (
-                            <>
-                              <span className="text-xs text-[#64748B] line-through">
-                                ₹{(item.product.originalPrice * item.quantity).toLocaleString('en-IN')}
-                              </span>
-                              <span className="text-[10px] text-[#FF6B00] font-bold">{discount}% Off</span>
-                            </>
-                          )}
+                        {/* Qty action */}
+                        <div className="flex items-center border border-brand-blue bg-brand-blue text-white rounded-button overflow-hidden text-[10px] font-extrabold shadow-soft">
+                          <button
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            className="px-1.5 py-1 hover:bg-blue-600 transition-colors"
+                          >
+                            <Minus size={9} strokeWidth={3} />
+                          </button>
+                          <span className="px-1.5 min-w-[15px] text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            className="px-1.5 py-1 hover:bg-blue-600 transition-colors"
+                          >
+                            <Plus size={9} strokeWidth={3} />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -134,164 +293,49 @@ export const CartPage: React.FC = () => {
                 );
               })}
             </div>
-          </div>
-        </div>
 
-        {/* Right Side: Bill Summary details (Span 1) */}
-        <div className="col-span-1 flex flex-col gap-4">
-          <div className={`border rounded-sm p-5 ${
-            isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white border-fk-border shadow-sm'
-          }`}>
-            <span className="font-extrabold text-xs uppercase tracking-wider text-slate-450 block border-b border-fk-border pb-3 mb-4">
-              Price Details
-            </span>
-
-            <div className="flex flex-col gap-3.5 text-xs font-semibold text-[#64748B] border-b border-fk-border pb-4 mb-4">
-              <div className="flex justify-between">
-                <span>Price ({totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'})</span>
-                <span className="text-[#172337] dark:text-white">₹{originalPriceTotal.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Vertical Discount</span>
-                <span className="text-[#16A34A]">-₹{totalSavings.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Delivery Charges</span>
-                <span className="text-[#16A34A] flex items-center gap-1">
-                  <span className="line-through text-slate-400">₹40</span>
-                  <span>FREE</span>
-                </span>
-              </div>
-            </div>
-
-            <div className="flex justify-between text-sm font-extrabold text-[#172337] dark:text-white border-b border-fk-border pb-4 mb-4">
-              <span>Total Amount</span>
-              <span>₹{cartTotal.toLocaleString('en-IN')}</span>
-            </div>
-
-            {totalSavings > 0 && (
-              <span className="text-xs font-bold text-[#16A34A] block mb-6 bg-green-50 p-2.5 rounded text-center border border-green-100">
-                🎉 You will save ₹{totalSavings.toLocaleString('en-IN')} on this order!
+            {/* Bill Details */}
+            <div className="bg-white border border-brand-border rounded-[20px] p-4.5 shadow-soft flex flex-col gap-3 font-numbers mt-1 select-none">
+              <span className="text-brand-graphite font-black text-[10px] tracking-wider uppercase font-heading border-b border-brand-border/10 pb-2 text-left">
+                Payment Details
               </span>
-            )}
+              <div className="flex flex-col gap-2 text-[10.5px] text-brand-slate font-bold">
+                <div className="flex justify-between items-center">
+                  <span>Subtotal</span>
+                  <span className="text-brand-graphite font-extrabold">₹{cartTotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-brand-border pb-2">
+                  <span>Delivery fee</span>
+                  <span className={deliveryCharges === 0 ? 'text-brand-green font-extrabold' : 'text-brand-graphite'}>
+                    {deliveryCharges === 0 ? 'FREE' : `₹${deliveryCharges}`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs font-black text-brand-graphite pt-1 leading-none">
+                  <span>Pay Amount</span>
+                  <span>₹{finalTotal.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-            <button
-              onClick={placeOrder}
-              className="w-full py-3 bg-[#fb641b] hover:bg-orange-700 text-white font-extrabold text-xs rounded uppercase tracking-wider shadow-sm flex items-center justify-center gap-1.5 transition-all transform active:scale-95"
+        {/* Mobile checkout floating bar (16px buttons) */}
+        {cart.length > 0 && (
+          <div className="fixed bottom-14 left-0 right-0 h-14 bg-white border-t border-brand-border px-4 flex items-center justify-between z-40 select-none shadow-premium">
+            <div className="flex flex-col leading-none font-numbers">
+              <span className="text-xs font-extrabold text-brand-graphite">₹{finalTotal.toLocaleString('en-IN')}</span>
+              <span className="text-[8px] text-brand-slate font-extrabold uppercase mt-0.5">Total Payable</span>
+            </div>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleCheckout}
+              className="px-6 py-2.5 bg-brand-green hover:bg-emerald-650 text-white rounded-button text-[10.5px] font-black uppercase tracking-wider shadow flex items-center gap-1 font-heading"
             >
               <span>Place Order</span>
-              <ArrowRight size={14} />
-            </button>
+              <ArrowRight size={12} />
+            </motion.button>
           </div>
-
-          <div className="flex gap-2.5 items-center justify-center text-[10px] text-slate-400 font-semibold">
-            <ShieldCheck size={18} className="text-[#16A34A]" />
-            <span>Safe and Secure Payments. 100% Authentic products.</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Mobile Page Layout
-  const renderMobile = () => {
-    return (
-      <div className="w-full flex flex-col bg-slate-50 min-h-screen text-left pb-28 select-none text-[#172337]">
-        {/* Header */}
-        <div className={`p-4 border-b ${
-          isServices ? 'bg-zinc-900 border-services-border text-white' : 'bg-white border-fk-border text-slate-800'
-        }`}>
-          <span className="font-extrabold text-xs tracking-wide">My Cart ({totalItemsCount})</span>
-        </div>
-
-        {/* Cart items list */}
-        <div className="flex flex-col gap-2.5 p-2.5">
-          <div className={`border border-fk-border rounded-lg overflow-hidden ${
-            isServices ? 'bg-services-card border-services-border' : 'bg-white shadow-sm'
-          }`}>
-            {cart.map(item => {
-              const discount = Math.round(((item.product.originalPrice - item.product.price) / item.product.originalPrice) * 100);
-              return (
-                <div key={item.product.id} className="p-3.5 border-b border-fk-border last:border-0 flex gap-3">
-                  {/* Pic */}
-                  <div className="w-16 h-16 border border-fk-border rounded flex items-center justify-center p-1 shrink-0 bg-white">
-                    <img src={item.product.image} alt={item.product.title} className="max-h-full max-w-full object-contain" />
-                  </div>
-
-                  {/* Info details */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between gap-2 items-start leading-none">
-                        <h3 className="font-bold text-[11px] text-gray-800 line-clamp-1">{item.product.title}</h3>
-                        <button onClick={() => removeFromCart(item.product.id)} className="text-gray-400 hover:text-red-500">
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                      <span className="text-[8px] text-[#64748B] font-bold block mt-1">{item.product.brand}</span>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-2.5">
-                      <div className="flex items-center border border-fk-border rounded overflow-hidden text-[10px] font-bold bg-white">
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="p-1 hover:bg-slate-50">
-                          <Minus size={10} />
-                        </button>
-                        <span className="px-2 min-w-[15px] text-center select-none">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="p-1 hover:bg-slate-50">
-                          <Plus size={10} />
-                        </button>
-                      </div>
-
-                      <div className="flex items-baseline gap-1.5 leading-none">
-                        <span className="text-[11px] font-extrabold text-[#172337]">₹{(item.product.price * item.quantity).toLocaleString('en-IN')}</span>
-                        {item.product.originalPrice > item.product.price && (
-                          <>
-                            <span className="text-[9px] text-[#64748B] line-through">₹{(item.product.originalPrice * item.quantity).toLocaleString('en-IN')}</span>
-                            <span className="text-[8px] text-[#FF6B00] font-bold">{discount}% Off</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Pricing breakdown summary */}
-          <div className={`border border-fk-border rounded-lg p-4 ${
-            isServices ? 'bg-services-card border-services-border text-services-text' : 'bg-white shadow-sm'
-          }`}>
-            <span className="font-extrabold text-[10px] uppercase tracking-wider text-[#64748B] block mb-2.5 border-b border-fk-border pb-1.5">Price details</span>
-            <div className="flex flex-col gap-2.5 text-[10px] font-bold text-[#64748B]">
-              <div className="flex justify-between">
-                <span>Items total original price</span>
-                <span>₹{originalPriceTotal.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Savings discount</span>
-                <span className="text-[#16A34A]">-₹{totalSavings.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between border-t border-fk-border pt-2.5 text-xs font-extrabold text-[#172337] dark:text-white">
-                <span>Total Amount to Pay</span>
-                <span>₹{cartTotal.toLocaleString('en-IN')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Sticky Mobile Bottom Billing & Action Bar */}
-        <div className="fixed bottom-14 left-0 right-0 h-14 bg-white border-t border-fk-border flex items-center justify-between px-4 z-40 select-none shadow-md3_3">
-          <div className="flex flex-col text-left leading-none">
-            <span className="text-xs font-extrabold text-[#172337]">₹{cartTotal.toLocaleString('en-IN')}</span>
-            <span className="text-[9px] text-[#16A34A] font-bold mt-0.5">Saved ₹{totalSavings.toLocaleString('en-IN')}!</span>
-          </div>
-          <button
-            onClick={placeOrder}
-            className="px-6 py-2.5 bg-[#fb641b] text-white font-extrabold text-[10px] rounded uppercase tracking-wider shadow transform active:scale-95"
-          >
-            Place Order
-          </button>
-        </div>
+        )}
       </div>
     );
   };

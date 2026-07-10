@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { PRODUCTS } from '../data/mockData';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { Search, Star, Filter, ArrowUpDown, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const SearchPage: React.FC = () => {
   const { currentVertical, searchQuery, setSearchQuery, navigateTo } = useApp();
@@ -16,7 +17,7 @@ export const SearchPage: React.FC = () => {
   const [maxPrice, setMaxPrice] = useState<number>(150000);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Filter products by current search query and current vertical
+  // Filter products
   const searchedProducts = useMemo(() => {
     let filtered = PRODUCTS.filter(p => p.vertical === currentVertical);
 
@@ -52,7 +53,6 @@ export const SearchPage: React.FC = () => {
     return filtered;
   }, [currentVertical, searchQuery, selectedBrand, minRating, maxPrice, sortBy]);
 
-  // Extract unique brands for filtering options
   const brands = useMemo(() => {
     const allBrands = PRODUCTS.filter(p => p.vertical === currentVertical).map(p => p.brand);
     return Array.from(new Set(allBrands));
@@ -72,24 +72,23 @@ export const SearchPage: React.FC = () => {
 
   const isServices = currentVertical === 'services';
 
-  // Desktop search page layout
   const renderDesktop = () => {
     return (
-      <div className="w-full flex gap-5 py-6 px-12 text-left">
+      <div className="max-w-7xl mx-auto w-full flex gap-8 py-8 px-12 text-left font-sans text-brand-graphite">
         {/* Left Filter Sidebar */}
-        <aside className={`w-[260px] p-5 border rounded shrink-0 h-fit select-none ${
-          isServices ? 'bg-services-card border-services-border' : 'bg-white border-fk-border shadow-fk'
+        <aside className={`w-[260px] p-6 border rounded-card shrink-0 h-fit select-none shadow-premium ${
+          isServices ? 'bg-[#2C2C2E] border-zinc-800 text-white' : 'bg-white border-brand-border'
         }`}>
-          <div className="flex justify-between items-center border-b pb-3.5 mb-4 border-fk-border">
-            <span className="font-extrabold text-xs uppercase tracking-wider">Filters</span>
-            <button onClick={handleResetFilters} className="text-xs font-bold text-[#2874F0] hover:underline">
+          <div className="flex justify-between items-center border-b pb-3.5 mb-5 border-brand-border/10">
+            <span className="font-black text-xs uppercase tracking-widest font-heading">Filters</span>
+            <button onClick={handleResetFilters} className="text-xs font-bold text-brand-blue hover:underline">
               Clear All
             </button>
           </div>
 
           {/* Sort By Section */}
           <div className="mb-6">
-            <span className="font-bold text-[10px] uppercase text-slate-400 tracking-wider block mb-2.5">Sort Results</span>
+            <span className="font-black text-[9px] uppercase text-brand-slate tracking-widest block mb-3 font-heading">Sort Results</span>
             <div className="flex flex-col gap-2">
               {[
                 { id: 'relevance', name: 'Relevance' },
@@ -101,7 +100,9 @@ export const SearchPage: React.FC = () => {
                   key={opt.id}
                   onClick={() => setSortBy(opt.id)}
                   className={`text-xs text-left font-bold py-1.5 transition-all ${
-                    sortBy === opt.id ? 'text-[#2874F0] font-extrabold pl-1.5 border-l-2 border-[#2874F0]' : 'text-slate-600 hover:text-slate-900'
+                    sortBy === opt.id
+                      ? 'text-brand-blue font-extrabold pl-2 border-l-2 border-brand-blue'
+                      : 'text-brand-slate hover:text-brand-graphite dark:hover:text-white'
                   }`}
                 >
                   {opt.name}
@@ -112,7 +113,7 @@ export const SearchPage: React.FC = () => {
 
           {/* Price Range Slider */}
           <div className="mb-6">
-            <span className="font-bold text-[10px] uppercase text-slate-400 tracking-wider block mb-2">Price Limit</span>
+            <span className="font-black text-[9px] uppercase text-brand-slate tracking-widest block mb-2.5 font-heading">Price Limit</span>
             <input
               type="range"
               min={0}
@@ -120,25 +121,25 @@ export const SearchPage: React.FC = () => {
               step={100}
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2874F0] mb-2.5"
+              className="w-full h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-blue mb-3 dark:bg-zinc-800"
             />
-            <div className="flex justify-between text-[11px] font-bold text-[#64748B]">
-              <span>Min: ₹0</span>
-              <span>Max: ₹{maxPrice.toLocaleString('en-IN')}</span>
+            <div className="flex justify-between text-[10px] font-black text-brand-slate font-numbers">
+              <span>₹0</span>
+              <span>₹{maxPrice.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
           {/* Brands Filter */}
           <div className="mb-6">
-            <span className="font-bold text-[10px] uppercase text-slate-400 tracking-wider block mb-2.5">Brand</span>
-            <div className="flex flex-col gap-2 max-h-40 overflow-y-auto no-scrollbar">
+            <span className="font-black text-[9px] uppercase text-brand-slate tracking-widest block mb-3 font-heading">Brand</span>
+            <div className="flex flex-col gap-2 max-h-40 overflow-y-auto no-scrollbar font-bold">
               {brands.map(brand => (
-                <label key={brand} className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer">
+                <label key={brand} className="flex items-center gap-2.5 text-xs text-brand-slate hover:text-brand-graphite dark:hover:text-white cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={selectedBrand === brand}
                     onChange={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
-                    className="rounded border-gray-300 text-[#2874F0] focus:ring-[#2874F0]"
+                    className="rounded-[4px] border-brand-border text-brand-blue focus:ring-brand-blue focus:ring-1 w-3.5 h-3.5"
                   />
                   <span>{brand}</span>
                 </label>
@@ -148,14 +149,14 @@ export const SearchPage: React.FC = () => {
 
           {/* Customer Ratings Filter */}
           <div className="mb-2">
-            <span className="font-bold text-[10px] uppercase text-slate-400 tracking-wider block mb-2.5">Customer Rating</span>
+            <span className="font-black text-[9px] uppercase text-brand-slate tracking-widest block mb-3 font-heading">Customer Rating</span>
             <div className="flex flex-col gap-2">
               {[4, 3, 2].map(star => (
                 <button
                   key={star}
                   onClick={() => setMinRating(minRating === star ? null : star)}
                   className={`flex items-center gap-1.5 text-xs text-left font-bold py-1 transition-all ${
-                    minRating === star ? 'text-[#2874F0] font-extrabold pl-1.5 border-l-2 border-[#2874F0]' : 'text-slate-600'
+                    minRating === star ? 'text-brand-blue font-extrabold pl-2 border-l-2 border-brand-blue' : 'text-brand-slate'
                   }`}
                 >
                   <span>{star}★ & above</span>
@@ -167,28 +168,29 @@ export const SearchPage: React.FC = () => {
 
         {/* Search Results Display */}
         <main className="flex-1">
-          <div className={`p-4 border rounded mb-5 flex justify-between items-center ${
-            isServices ? 'bg-services-card border-services-border' : 'bg-white border-fk-border shadow-fk'
+          <div className={`p-4.5 border rounded-card mb-6 flex justify-between items-center shadow-premium ${
+            isServices ? 'bg-[#2C2C2E] border-zinc-800 text-white' : 'bg-white border-brand-border'
           }`}>
-            <span className="text-xs font-bold text-[#64748B]">
-              Showing <strong className={isServices ? 'text-white' : 'text-[#172337]'}>{searchedProducts.length}</strong> results for "{searchQuery || 'All items'}"
+            <span className="text-xs font-bold text-brand-slate">
+              Showing <strong className={`font-numbers ${isServices ? 'text-white' : 'text-brand-graphite'}`}>{searchedProducts.length}</strong> results for "{searchQuery || 'All catalog'}"
             </span>
           </div>
 
           {searchedProducts.length === 0 ? (
-            <div className="w-full py-16 bg-white border border-fk-border rounded flex flex-col items-center justify-center text-center p-6 shadow-sm">
+            <div className="w-full py-16 bg-white border border-brand-border rounded-card flex flex-col items-center justify-center text-center p-6 shadow-premium">
               <span className="text-4xl mb-4">🔍</span>
-              <h3 className="text-base font-bold text-gray-900 mb-1">No products found</h3>
-              <p className="text-xs text-gray-500 max-w-sm mb-4">Try checking your spelling or use more general terms</p>
-              <button
+              <h3 className="text-sm font-extrabold text-brand-graphite mb-1.5 font-heading">No matches found</h3>
+              <p className="text-xs text-brand-slate max-w-sm mb-5 font-semibold">Try modifying filters or checking keywords spelling</p>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => { setSearchQuery(''); handleResetFilters(); }}
-                className="px-4 py-2 bg-[#2874F0] text-white rounded text-xs font-bold shadow-sm"
+                className="px-5 py-2.5 bg-brand-blue text-white rounded-button text-xs font-extrabold shadow-premium hover:bg-blue-600 transition-colors uppercase tracking-wider"
               >
-                Clear Search & Filters
-              </button>
+                Reset Search Filters
+              </motion.button>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4 select-none">
+            <div className="grid grid-cols-3 gap-5 select-none">
               {searchedProducts.map(product => {
                 const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
                 const isWishlisted = wishlist[product.id];
@@ -196,17 +198,18 @@ export const SearchPage: React.FC = () => {
                   <div
                     key={product.id}
                     onClick={() => navigateTo('detail', product.id)}
-                    className={`border rounded p-4 flex flex-col hover:shadow-fkCardHover hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group h-full relative ${
-                      isServices ? 'bg-services-card border-services-border' : 'bg-white border-fk-border'
+                    className={`border rounded-card p-4.5 flex flex-col hover:shadow-hover-lift hover:-translate-y-1 transition-all duration-350 cursor-pointer group h-full relative ${
+                      isServices ? 'bg-[#2C2C2E] border-zinc-800 text-white' : 'bg-white border-brand-border'
                     }`}
                   >
                     {/* Wishlist Button */}
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
                       onClick={(e) => toggleWishlist(product.id, e)}
-                      className="absolute top-3 right-3 p-1.5 rounded-full bg-white/90 text-gray-400 hover:text-[#E53935] shadow-xs border border-fk-border transition-colors z-10"
+                      className="absolute top-3 right-3 p-1.5 rounded-full bg-white/90 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
                     >
-                      <Heart size={12} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                    </button>
+                      <Heart size={12} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                    </motion.button>
 
                     {product.isAssured && (
                       <img
@@ -215,25 +218,25 @@ export const SearchPage: React.FC = () => {
                         className="h-3.5 object-contain absolute bottom-3.5 left-3.5 z-10"
                       />
                     )}
-                    <div className="w-full aspect-square flex items-center justify-center mb-4 bg-slate-50 rounded p-2 overflow-hidden">
+                    <div className="w-full aspect-square flex items-center justify-center mb-4.5 bg-brand-elevated rounded-card border border-brand-border/40 p-2 overflow-hidden shadow-soft">
                       <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" />
                     </div>
-                    <h3 className="text-xs font-bold text-[#172337] line-clamp-2 leading-relaxed mb-1.5 min-h-[36px] group-hover:text-[#2874F0] transition-colors dark:group-hover:text-services-gold dark:text-services-text">
+                    <h3 className="text-xs font-bold text-brand-graphite line-clamp-2 leading-relaxed mb-2.5 min-h-[36px] group-hover:text-brand-blue transition-colors dark:group-hover:text-services-gold dark:text-white font-heading">
                       {product.title}
                     </h3>
-                    <div className="flex items-center gap-2 mb-2.5 mt-auto leading-none">
-                      <div className="flex items-center gap-0.5 bg-[#16A34A] text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded shadow-xs">
+                    <div className="flex items-center gap-2 mb-3 mt-auto leading-none">
+                      <div className="flex items-center gap-0.5 bg-brand-green text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded shadow-soft font-numbers">
                         <span>{product.rating}</span>
                         <Star size={8} className="fill-white text-white" />
                       </div>
-                      <span className="text-[10px] text-[#64748B] font-semibold">({product.ratingCount.toLocaleString('en-IN')})</span>
+                      <span className="text-[10px] text-brand-slate font-bold font-numbers">({product.ratingCount.toLocaleString('en-IN')})</span>
                     </div>
-                    <div className="flex items-baseline gap-1.5 leading-none">
-                      <span className="text-sm font-extrabold text-[#172337] dark:text-white">₹{product.price.toLocaleString('en-IN')}</span>
+                    <div className="flex items-baseline gap-1.5 leading-none font-numbers mt-1">
+                      <span className="text-sm font-extrabold text-brand-graphite dark:text-white">₹{product.price.toLocaleString('en-IN')}</span>
                       {product.originalPrice > product.price && (
                         <>
-                          <span className="text-xs text-[#64748B] line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                          <span className="text-[10px] font-bold text-[#FF6B00]">{discount}% Off</span>
+                          <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                          <span className="text-[9.5px] font-black text-brand-orange uppercase tracking-wider">{discount}% Off</span>
                         </>
                       )}
                     </div>
@@ -247,37 +250,35 @@ export const SearchPage: React.FC = () => {
     );
   };
 
-  // Mobile search page layout
   const renderMobile = () => {
     return (
-      <div className="w-full flex flex-col gap-2.5 p-3 bg-slate-50 min-h-screen text-left pb-20 select-none">
+      <div className="w-full flex flex-col gap-3 p-3 bg-[#FAF9F6] min-h-screen text-left pb-20 select-none text-brand-graphite font-sans">
         {/* Mobile Input Search Bar */}
-        <div className="flex gap-2 bg-white p-2.5 rounded-md shadow-sm items-center border border-fk-border">
-          <Search size={15} className="text-slate-400 ml-1.5" />
+        <div className="flex gap-2.5 bg-white p-3 rounded-[16px] shadow-soft items-center border border-brand-border">
+          <Search size={15} className="text-brand-slate ml-1.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search products..."
-            className="w-full bg-transparent focus:outline-none text-xs font-semibold text-gray-800"
+            placeholder="Search products, brands and catalog..."
+            className="w-full bg-transparent focus:outline-none text-xs font-semibold text-brand-graphite"
           />
         </div>
 
         {/* Sort & Filter controls strip */}
-        <div className="grid grid-cols-2 gap-2 mt-1 bg-white p-2 rounded-md shadow-sm border border-fk-border">
+        <div className="grid grid-cols-2 gap-2 bg-white p-2 rounded-[16px] shadow-soft border border-brand-border leading-none select-none font-heading">
           <button
             onClick={() => setMobileFilterOpen(true)}
-            className="flex items-center justify-center gap-2 text-xs font-bold text-slate-650 border-r border-gray-100 py-1"
+            className="flex items-center justify-center gap-2 text-xs font-bold text-brand-slate border-r border-slate-100 py-1.5"
           >
             <Filter size={14} />
             <span>Filter</span>
           </button>
           <button
             onClick={() => {
-              // Toggle sorting on mobile
               setSortBy(prev => prev === 'price-low' ? 'price-high' : 'price-low');
             }}
-            className="flex items-center justify-center gap-2 text-xs font-bold text-slate-650 py-1"
+            className="flex items-center justify-center gap-2 text-xs font-bold text-brand-slate py-1.5"
           >
             <ArrowUpDown size={14} />
             <span>Sort Price</span>
@@ -285,18 +286,19 @@ export const SearchPage: React.FC = () => {
         </div>
 
         {searchedProducts.length === 0 ? (
-          <div className="w-full py-16 bg-white border border-fk-border rounded-lg flex flex-col items-center justify-center text-center p-6 shadow-sm mt-3">
+          <div className="w-full py-16 bg-white border border-brand-border rounded-[20px] flex flex-col items-center justify-center text-center p-6 shadow-soft mt-2">
             <span className="text-3xl mb-4">🔍</span>
-            <h3 className="text-sm font-bold text-gray-900 mb-1">No matches found</h3>
-            <button
+            <h3 className="text-xs font-extrabold text-brand-graphite mb-1.5 font-heading">No matches found</h3>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => { setSearchQuery(''); handleResetFilters(); }}
-              className="px-4 py-2 bg-[#2874F0] text-white rounded text-[10px] font-bold shadow-sm mt-2"
+              className="px-4 py-2 bg-brand-blue text-white rounded-button text-[9.5px] font-black shadow mt-2 uppercase tracking-wider"
             >
-              Reset Search
-            </button>
+              Reset Filters
+            </motion.button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-2 gap-2 mt-1">
             {searchedProducts.map(product => {
               const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
               const isWishlisted = wishlist[product.id];
@@ -304,15 +306,16 @@ export const SearchPage: React.FC = () => {
                 <div
                   key={product.id}
                   onClick={() => navigateTo('detail', product.id)}
-                  className="bg-white border border-fk-border rounded-md p-3 flex flex-col cursor-pointer relative shadow-sm"
+                  className="bg-white border border-brand-border rounded-[20px] p-3 flex flex-col cursor-pointer relative shadow-soft"
                 >
                   {/* Wishlist Button */}
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
                     onClick={(e) => toggleWishlist(product.id, e)}
-                    className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-gray-400 hover:text-[#E53935] shadow-xs border border-fk-border transition-colors z-10"
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
                   >
-                    <Heart size={10} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                  </button>
+                    <Heart size={10} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                  </motion.button>
 
                   {product.isAssured && (
                     <img
@@ -321,23 +324,23 @@ export const SearchPage: React.FC = () => {
                       className="h-2.5 object-contain absolute top-2.5 left-2.5 z-10"
                     />
                   )}
-                  <div className="w-full aspect-square flex items-center justify-center mb-2.5 bg-slate-50 rounded p-1.5 overflow-hidden">
+                  <div className="w-full aspect-square flex items-center justify-center mb-2.5 bg-brand-elevated rounded-[20px] p-1.5 overflow-hidden shadow-soft border border-brand-border/40">
                     <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain" />
                   </div>
-                  <h3 className="text-[10px] font-bold text-[#172337] line-clamp-2 leading-snug mb-1 min-h-[30px]">
+                  <h3 className="text-[10px] font-bold text-brand-graphite line-clamp-2 leading-snug mb-1 min-h-[30px] font-heading">
                     {product.title}
                   </h3>
                   <div className="flex items-center gap-1.5 mb-1.5 mt-auto leading-none">
-                    <div className="flex items-center gap-0.5 bg-[#16A34A] text-white font-extrabold text-[8px] px-1 py-0.2 rounded">
+                    <div className="flex items-center gap-0.5 bg-brand-green text-white font-extrabold text-[8px] px-1.5 py-0.5 rounded shadow-soft font-numbers">
                       <span>{product.rating}</span>
                       <Star size={7} className="fill-white text-white" />
                     </div>
-                    <span className="text-[8px] text-[#64748B] font-bold">({product.ratingCount.toLocaleString('en-IN')})</span>
+                    <span className="text-[8px] text-brand-slate font-bold font-numbers">({product.ratingCount.toLocaleString('en-IN')})</span>
                   </div>
-                  <div className="flex items-baseline gap-1 mt-1 leading-none">
-                    <span className="text-[11px] font-extrabold text-[#172337]">₹{product.price.toLocaleString('en-IN')}</span>
-                    <span className="text-[8px] text-[#64748B] line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                    <span className="text-[8px] font-bold text-[#FF6B00]">{discount}%</span>
+                  <div className="flex items-baseline gap-1 mt-1 leading-none font-numbers">
+                    <span className="text-[11px] font-extrabold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                    <span className="text-[8px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                    <span className="text-[8px] font-black text-brand-orange uppercase tracking-wider">{discount}%</span>
                   </div>
                 </div>
               );
@@ -347,27 +350,27 @@ export const SearchPage: React.FC = () => {
 
         {/* Mobile Filter Drawer Sheet */}
         {mobileFilterOpen && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center">
+          <div className="fixed inset-0 bg-brand-graphite/40 z-50 flex items-end justify-center">
             <div className="absolute inset-0" onClick={() => setMobileFilterOpen(false)} />
-            <div className="w-full bg-white rounded-t-xl max-w-md p-5 pb-8 z-50 text-left shadow-lg text-gray-800">
-              <div className="flex justify-between items-center border-b border-fk-border pb-3 mb-4">
-                <span className="font-extrabold text-sm text-[#172337]">Filter & Sort Option</span>
-                <button onClick={() => setMobileFilterOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold p-1">
+            <div className="w-full bg-white rounded-t-bottom-nav p-5 pb-8 z-50 text-left shadow-elevated border-t border-brand-border text-brand-graphite">
+              <div className="flex justify-between items-center border-b border-brand-border pb-3 mb-4 leading-none">
+                <span className="font-extrabold text-sm font-heading">Filter & Sort Options</span>
+                <button onClick={() => setMobileFilterOpen(false)} className="text-brand-slate hover:text-brand-graphite font-bold p-1">
                   ✕
                 </button>
               </div>
 
               {/* Brands selection */}
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Select Brand</span>
-              <div className="flex flex-wrap gap-2 mb-4">
+              <span className="text-[9px] text-brand-slate font-black uppercase tracking-widest block mb-2.5 font-heading">Select Brand</span>
+              <div className="flex flex-wrap gap-2 mb-4 font-bold">
                 {brands.map(brand => (
                   <button
                     key={brand}
                     onClick={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
-                    className={`px-3.5 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                    className={`px-3.5 py-2 rounded-full text-[10px] border transition-all ${
                       selectedBrand === brand
-                        ? 'bg-[#2874F0] text-white border-[#2874F0]'
-                        : 'bg-slate-50 text-slate-600 border-fk-border'
+                        ? 'bg-brand-blue text-white border-brand-blue'
+                        : 'bg-slate-50 text-brand-slate border-brand-border'
                     }`}
                   >
                     {brand}
@@ -376,16 +379,16 @@ export const SearchPage: React.FC = () => {
               </div>
 
               {/* Ratings selection */}
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Customer Rating</span>
-              <div className="grid grid-cols-3 gap-2 mb-6">
+              <span className="text-[9px] text-brand-slate font-black uppercase tracking-widest block mb-2.5 font-heading">Customer Rating</span>
+              <div className="grid grid-cols-3 gap-2 mb-6 font-bold">
                 {[4, 3, 2].map(star => (
                   <button
                     key={star}
                     onClick={() => setMinRating(minRating === star ? null : star)}
-                    className={`py-2 text-center text-[10px] font-bold border rounded transition-all ${
+                    className={`py-2 text-center text-[10px] border rounded-button transition-all ${
                       minRating === star
-                        ? 'border-[#2874F0] bg-blue-50 text-[#2874F0]'
-                        : 'border-fk-border bg-slate-50 text-slate-655'
+                        ? 'border-brand-blue bg-blue-50/15 text-brand-blue'
+                        : 'border-brand-border bg-slate-50 text-brand-slate'
                     }`}
                   >
                     {star}★ & above
@@ -393,12 +396,13 @@ export const SearchPage: React.FC = () => {
                 ))}
               </div>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setMobileFilterOpen(false)}
-                className="w-full py-2.5 bg-[#2874F0] hover:bg-[#1557D6] text-white font-extrabold text-xs rounded-lg uppercase tracking-wider shadow"
+                className="w-full py-3 bg-brand-blue hover:bg-blue-600 text-white font-extrabold text-xs rounded-button uppercase tracking-wider shadow"
               >
-                Apply Filters
-              </button>
+                Apply Selected Filters
+              </motion.button>
             </div>
           </div>
         )}

@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PRODUCTS, BANNERS } from '../../data/mockData';
-import { Carousel } from '../common/Carousel';
-import { Star, Award, Heart } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Star, Award, Heart, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const VerticalShop: React.FC = () => {
   const { navigateTo } = useApp();
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 32, seconds: 45 });
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHoveringCarousel, setIsHoveringCarousel] = useState(false);
 
   // Filter products for this vertical
   const shopProducts = PRODUCTS.filter(p => p.vertical === 'shop');
   const banners = BANNERS.filter(b => b.vertical === 'shop');
+
+  // Autoplay for Hero Carousel
+  useEffect(() => {
+    if (isHoveringCarousel) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % banners.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [isHoveringCarousel, banners.length]);
 
   // Deals countdown timer
   useEffect(() => {
@@ -39,133 +49,262 @@ export const VerticalShop: React.FC = () => {
     setWishlist(prev => ({ ...prev, [productId]: !prev[productId] }));
   };
 
-  // Categories for sections
   const mobiles = shopProducts.filter(p => p.category === 's-mobiles');
   const electronics = shopProducts.filter(p => p.category === 's-electronics');
 
+  // Horizontal scroll container reference for deals
+  const dealsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollDeals = (direction: 'left' | 'right') => {
+    if (dealsScrollRef.current) {
+      const scrollAmount = 400;
+      dealsScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div className="w-full flex flex-col gap-5 py-5 px-12 bg-fk-lightGray min-h-screen text-[#172337]">
-      {/* Hero Banner Carousel with cinematic lighting and animations */}
-      <div className="w-full h-[280px] rounded overflow-hidden shadow-fk">
-        <Carousel showArrows={true} showIndicators={true} autoplayDelay={5000}>
-          {banners.map(banner => (
-            <div
-              key={banner.id}
-              className="w-full h-[280px] flex items-center justify-between relative text-white bg-slate-950"
-            >
-              <img
-                src={banner.image}
-                alt={banner.title}
-                className="absolute inset-0 w-full h-full object-cover opacity-50 transition-transform duration-[8000ms] ease-out scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/40 to-transparent z-0" />
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
-                className="relative z-10 pl-16 flex flex-col max-w-lg select-none text-left"
-              >
-                <span className="bg-[#FF6B00] text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded w-max tracking-wider mb-3 shadow-sm">
-                  LIMITED OFFER
-                </span>
-                <h2 className="text-3xl font-extrabold tracking-tight mb-2 drop-shadow-md leading-tight">
-                  {banner.title}
-                </h2>
-                <p className="text-sm font-semibold text-slate-200 opacity-95 leading-relaxed mb-5">
-                  {banner.subtitle}
-                </p>
-                <button
-                  onClick={() => navigateTo('search')}
-                  className="px-6 py-2.5 bg-[#2874F0] hover:bg-[#1557D6] text-white rounded font-bold text-xs tracking-wider shadow-md hover:shadow-lg transition-all duration-350 transform active:scale-95 w-max uppercase"
-                >
-                  SHOP NOW
-                </button>
-              </motion.div>
-            </div>
-          ))}
-        </Carousel>
-      </div>
-
-      {/* Flipkart-style Deals of the Day */}
-      <div className="w-full bg-white flex shadow-fk rounded-sm overflow-hidden select-none border border-fk-border">
-        {/* Deal info & Timer (Left Column) */}
-        <div className="w-[260px] p-6 border-r border-fk-border flex flex-col items-center justify-center text-center shrink-0 bg-cover bg-bottom bg-no-repeat"
-             style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.94), rgba(255,255,255,0.94)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&auto=format')` }}>
-          <h3 className="text-lg font-bold mb-3 tracking-tight text-slate-800 uppercase text-xs tracking-wider">Deals of the Day</h3>
-          <div className="flex items-center gap-1.5 mb-6">
-            <span className="w-6 h-6 flex items-center justify-center bg-[#E53935] text-white font-extrabold rounded text-xs shadow-sm">
-              {formatNumber(timeLeft.hours)}
-            </span>
-            <span className="font-bold text-red-600">:</span>
-            <span className="w-6 h-6 flex items-center justify-center bg-[#E53935] text-white font-extrabold rounded text-xs shadow-sm">
-              {formatNumber(timeLeft.minutes)}
-            </span>
-            <span className="font-bold text-red-600">:</span>
-            <span className="w-6 h-6 flex items-center justify-center bg-[#E53935] text-white font-extrabold rounded text-xs shadow-sm">
-              {formatNumber(timeLeft.seconds)}
-            </span>
-          </div>
-          <button
-            onClick={() => navigateTo('search')}
-            className="px-5 py-2 bg-[#2874F0] hover:bg-[#1557D6] text-white font-bold text-[10px] tracking-wider rounded-sm shadow-sm transition-colors uppercase"
+    <div className="w-full flex flex-col gap-16 py-10 px-16 bg-brand-bg min-h-screen text-brand-graphite font-sans transition-colors duration-300">
+      
+      {/* 1. Hero Banner Carousel (Redesigned from Scratch with Apple-like typography & progress indicator dots) */}
+      <div 
+        className="w-full h-[360px] rounded-hero overflow-hidden shadow-premium relative bg-zinc-950 group"
+        onMouseEnter={() => setIsHoveringCarousel(true)}
+        onMouseLeave={() => setIsHoveringCarousel(false)}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 w-full h-full"
           >
-            View All
-          </button>
-        </div>
-
-        {/* Dynamic Horizontal Product Scroll (Right Column) */}
-        <div className="w-full flex gap-5 overflow-x-auto p-5 py-6 scroll-smooth no-scrollbar">
-          {shopProducts.slice(0, 5).map(product => {
-            const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-            const isWishlisted = wishlist[product.id];
-            return (
-              <div
-                key={product.id}
-                onClick={() => navigateTo('detail', product.id)}
-                className="w-[180px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer relative"
+            {/* Background zoom image */}
+            <motion.img
+              initial={{ scale: 1.06 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 6, ease: 'easeOut' }}
+              src={banners[currentSlide].image}
+              alt={banners[currentSlide].title}
+              className="absolute inset-0 w-full h-full object-cover opacity-70 select-none"
+            />
+            {/* Soft vignette overlay mapping text visibility zone only */}
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/75 via-zinc-950/20 to-transparent z-0" />
+            
+            {/* Text Overlay */}
+            <div className="absolute inset-y-0 left-0 pl-20 flex flex-col justify-center max-w-xl z-10 text-left text-white select-none">
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="bg-brand-orange/90 text-[9px] font-bold uppercase px-3 py-1 rounded-sm w-max tracking-widest mb-5 shadow-soft"
               >
-                {/* Wishlist Button */}
-                <button
-                  onClick={(e) => toggleWishlist(product.id, e)}
-                  className="absolute top-1 right-3 p-1.5 rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-[#E53935] shadow-sm border border-fk-border transition-colors z-10"
-                >
-                  <Heart size={12} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                </button>
+                Exclusive Launch
+              </motion.span>
+              <motion.h2
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="text-4xl font-bold tracking-tight mb-3 font-heading leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              >
+                {banners[currentSlide].title}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="text-sm font-medium text-zinc-300 mb-8 leading-relaxed max-w-md"
+              >
+                {banners[currentSlide].subtitle}
+              </motion.p>
+              
+              <motion.button
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigateTo('search')}
+                className="px-8.5 py-4 bg-[#1C1C1E] text-white rounded-full font-bold text-[11px] tracking-wider shadow-elevated hover:bg-neutral-800 transition-all w-max uppercase flex items-center gap-2.5"
+              >
+                <span>Shop Collection</span>
+                <span>→</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
-                <div className="w-[130px] h-[130px] flex items-center justify-center mb-3 bg-slate-50 border border-slate-100 rounded p-2 overflow-hidden">
-                  <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <h4 className="text-xs font-bold text-[#172337] line-clamp-1 group-hover:text-[#2874F0] transition-colors px-2 leading-tight">
-                  {product.title}
-                </h4>
-                <div className="flex items-center gap-1.5 mt-1.5 justify-center leading-none">
-                  <span className="text-xs font-extrabold text-[#172337]">₹{product.price.toLocaleString('en-IN')}</span>
-                  <span className="text-[10px] text-[#64748B] line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                </div>
-                <span className="text-[10px] text-[#FF6B00] font-bold mt-1 bg-orange-50 px-2 py-0.5 rounded-full">
-                  {discount}% OFF
-                </span>
-              </div>
-            );
-          })}
+        {/* Carousel Prev/Next Arrows (Elegant & unobtrusive) */}
+        <button
+          onClick={() => setCurrentSlide(prev => (prev - 1 + banners.length) % banners.length)}
+          className="absolute left-6 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/10 hover:bg-black/25 text-white/90 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-90"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <button
+          onClick={() => setCurrentSlide(prev => (prev + 1) % banners.length)}
+          className="absolute right-6 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/10 hover:bg-black/25 text-white/90 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-90"
+          aria-label="Next Slide"
+        >
+          <ChevronRight size={16} />
+        </button>
+
+        {/* Progress Navigation Dots (Apple style line indicators) */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className="group relative focus:outline-none"
+              aria-label={`Go to slide ${idx + 1}`}
+            >
+              <span className={`block h-1 rounded-full transition-all duration-500 ${
+                currentSlide === idx ? 'w-8 bg-white' : 'w-2 bg-white/40 group-hover:bg-white/70'
+              }`} />
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Main Multi-Column Product Display Grids */}
-      <div className="w-full grid grid-cols-4 gap-5">
+      {/* 2. Deals of the Day (Polished details, luxury monospaced countdown timer, horizontal carousel buttons) */}
+      <div className="w-full bg-white rounded-card flex flex-col md:flex-row shadow-premium overflow-hidden border border-brand-border relative">
+        {/* Left Side: Editorial timer and badge */}
+        <div 
+          className="w-full md:w-[280px] p-8 border-b md:border-b-0 md:border-r border-brand-border flex flex-col items-center justify-center text-center shrink-0 bg-cover bg-bottom bg-no-repeat relative"
+          style={{ backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.95)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&auto=format')` }}
+        >
+          <div className="flex items-center gap-1.5 text-brand-orange bg-orange-50/80 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider mb-3.5 border border-brand-orange/10">
+            <Clock size={10} className="animate-spin-slow" />
+            <span>Limited Offer</span>
+          </div>
+          <h3 className="text-sm font-bold mb-4 tracking-wider text-brand-graphite uppercase font-heading">Deals of the Day</h3>
+          
+          {/* Monospaced Digit blocks */}
+          <div className="flex items-center gap-2 mb-7 font-numbers text-xs font-bold select-none">
+            <div className="flex flex-col items-center">
+              <span className="w-9 h-9 flex items-center justify-center bg-brand-graphite text-white rounded-sm shadow-soft text-sm font-bold leading-none">
+                {formatNumber(timeLeft.hours)}
+              </span>
+              <span className="text-[7.5px] uppercase font-bold tracking-wider text-brand-slate mt-1.5">Hours</span>
+            </div>
+            <span className="text-brand-slate font-bold mb-4">:</span>
+            <div className="flex flex-col items-center">
+              <span className="w-9 h-9 flex items-center justify-center bg-brand-graphite text-white rounded-sm shadow-soft text-sm font-bold leading-none">
+                {formatNumber(timeLeft.minutes)}
+              </span>
+              <span className="text-[7.5px] uppercase font-bold tracking-wider text-brand-slate mt-1.5">Mins</span>
+            </div>
+            <span className="text-brand-slate font-bold mb-4">:</span>
+            <div className="flex flex-col items-center">
+              <span className="w-9 h-9 flex items-center justify-center bg-brand-graphite text-white rounded-sm shadow-soft text-sm font-bold leading-none">
+                {formatNumber(timeLeft.seconds)}
+              </span>
+              <span className="text-[7.5px] uppercase font-bold tracking-wider text-brand-slate mt-1.5">Secs</span>
+            </div>
+          </div>
+          
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigateTo('search')}
+            className="px-6 py-2.5 bg-brand-blue hover:bg-blue-600 text-white font-bold text-[10px] tracking-wider rounded-button shadow-premium transition-colors uppercase"
+          >
+            Explore All Deals
+          </motion.button>
+        </div>
+
+        {/* Right Side: Horizontal products list with slider arrows */}
+        <div className="flex-1 relative flex items-center">
+          {/* Scroll Navigation Arrows */}
+          <button
+            onClick={() => scrollDeals('left')}
+            className="absolute left-3 w-8 h-8 rounded-full bg-white border border-brand-border/60 hover:border-brand-border shadow-soft flex items-center justify-center text-brand-slate hover:text-brand-graphite hover:scale-105 active:scale-95 transition-all z-10"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            onClick={() => scrollDeals('right')}
+            className="absolute right-3 w-8 h-8 rounded-full bg-white border border-brand-border/60 hover:border-brand-border shadow-soft flex items-center justify-center text-brand-slate hover:text-brand-graphite hover:scale-105 active:scale-95 transition-all z-10"
+            aria-label="Scroll right"
+          >
+            <ChevronRight size={16} />
+          </button>
+
+          {/* Horizontal Grid Content */}
+          <div 
+            ref={dealsScrollRef}
+            className="w-full flex gap-6 overflow-x-auto p-8 scroll-smooth no-scrollbar"
+          >
+            {shopProducts.slice(0, 5).map(product => {
+              const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+              const isWishlisted = wishlist[product.id];
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => navigateTo('detail', product.id)}
+                  className="w-[180px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer relative"
+                >
+                  {/* Wishlist Heart Animation */}
+                  <motion.button
+                    whileTap={{ scale: 0.8 }}
+                    onClick={(e) => toggleWishlist(product.id, e)}
+                    className="absolute top-1 right-1 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border/40 transition-colors z-10"
+                  >
+                    <Heart size={12} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                  </motion.button>
+
+                  {/* Editorial zoom wrapper */}
+                  <div className="w-[140px] h-[140px] flex items-center justify-center mb-4 bg-brand-elevated border border-brand-border rounded-card p-2 overflow-hidden shadow-soft relative">
+                    <img 
+                      src={product.image} 
+                      alt={product.title} 
+                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
+                    />
+                  </div>
+                  <h4 className="text-xs font-semibold text-brand-graphite line-clamp-1 group-hover:text-brand-blue transition-colors px-2 leading-tight font-heading">
+                    {product.title}
+                  </h4>
+                  <div className="flex items-center gap-1.5 mt-2 justify-center leading-none font-numbers text-xs">
+                    <span className="font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                  </div>
+                  <span className="text-[9px] text-brand-orange font-bold mt-2 bg-orange-50 border border-brand-orange/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-numbers">
+                    {discount}% OFF
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Main Multi-Column Product Display Grids (Polished visual borders, shadows, image-zooms & consistent rhythm spacing) */}
+      <div className="w-full grid grid-cols-4 gap-8 text-left items-start select-none">
+        
         {/* Left Column: Product Grid Sections (Span 3) */}
-        <div className="col-span-3 flex flex-col gap-5">
+        <div className="col-span-3 flex flex-col gap-10">
+          
           {/* Section 1: Mobile & Smart Devices */}
-          <div className="w-full bg-white p-5 rounded-sm shadow-fk flex flex-col gap-4 border border-fk-border">
-            <div className="flex justify-between items-center border-b border-fk-border pb-3">
-              <div className="flex items-center gap-2">
-                <span className="h-5 w-1 bg-[#2874F0] rounded-full"></span>
-                <h3 className="text-sm font-extrabold text-[#172337] uppercase tracking-wide">Latest Mobiles & Tablets</h3>
+          <div className="w-full bg-brand-card p-8 rounded-card shadow-premium flex flex-col gap-6 border border-brand-border">
+            <div className="flex justify-between items-center border-b border-brand-border pb-4 leading-none">
+              <div className="flex items-center gap-2.5">
+                <span className="h-4 w-1 bg-brand-blue rounded-full"></span>
+                <h3 className="text-xs font-semibold text-brand-graphite uppercase tracking-wider font-heading">Latest Mobiles & Tablets</h3>
               </div>
-              <button onClick={() => navigateTo('search')} className="text-xs font-bold text-[#2874F0] hover:underline">VIEW ALL</button>
+              <button 
+                onClick={() => navigateTo('search')} 
+                className="text-xs font-semibold text-brand-blue hover:text-blue-600 transition-colors uppercase tracking-wider"
+              >
+                View All
+              </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-6">
               {mobiles.map(product => {
                 const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
                 const isWishlisted = wishlist[product.id];
@@ -173,43 +312,50 @@ export const VerticalShop: React.FC = () => {
                   <div
                     key={product.id}
                     onClick={() => navigateTo('detail', product.id)}
-                    className="border border-fk-border rounded-md p-4 flex flex-col bg-white hover:shadow-fkCardHover hover:-translate-y-0.5 transition-all duration-300 cursor-pointer h-full group relative"
+                    className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card hover:shadow-hover-lift hover:-translate-y-1.5 transition-all duration-500 ease-out cursor-pointer h-full group relative"
                   >
                     {/* Wishlist Button */}
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.8 }}
                       onClick={(e) => toggleWishlist(product.id, e)}
-                      className="absolute top-3 right-3 p-1.5 rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-[#E53935] shadow-sm border border-fk-border transition-colors z-10"
+                      className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
                     >
-                      <Heart size={13} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                    </button>
+                      <Heart size={13} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                    </motion.button>
 
-                    <div className="w-full aspect-square flex items-center justify-center mb-4 relative overflow-hidden rounded bg-slate-50 p-2">
-                      <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                    <div className="w-full aspect-square flex items-center justify-center mb-5 relative overflow-hidden rounded-card bg-brand-elevated border border-brand-border/40 p-2.5 shadow-soft">
+                      <img 
+                        src={product.image} 
+                        alt={product.title} 
+                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
+                      />
                       {product.isAssured && (
                         <img
                           src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
                           alt="Assured"
-                          className="h-3.5 object-contain absolute bottom-2 left-2 shadow-xs"
+                          className="h-3.5 object-contain absolute bottom-3.5 left-3.5 shadow-soft"
                         />
                       )}
                     </div>
 
-                    <h4 className="text-xs font-bold text-[#172337] line-clamp-2 leading-relaxed mb-2 group-hover:text-[#2874F0] transition-colors min-h-[36px]">
+                    <h4 className="text-xs font-medium text-brand-graphite line-clamp-2 leading-relaxed mb-3.5 group-hover:text-brand-blue transition-colors min-h-[36px] font-heading">
                       {product.title}
                     </h4>
 
-                    <div className="flex items-center gap-2 mb-2.5 mt-auto leading-none">
-                      <div className="flex items-center gap-0.5 bg-[#16A34A] text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded shadow-xs">
+                    {/* Ratings and Count Row */}
+                    <div className="flex items-center gap-2 mb-4 mt-auto leading-none select-none">
+                      <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-semibold text-[9px] px-2 py-0.5 rounded shadow-soft font-numbers">
                         <span>{product.rating}</span>
-                        <Star size={8} className="fill-white text-white" />
+                        <Star size={8} className="fill-brand-green text-brand-green" />
                       </div>
-                      <span className="text-[10px] text-[#64748B] font-semibold">({product.ratingCount.toLocaleString('en-IN')})</span>
+                      <span className="text-[10px] text-brand-slate font-semibold font-numbers">({product.ratingCount.toLocaleString('en-IN')} ratings)</span>
                     </div>
 
-                    <div className="flex items-baseline gap-1.5 mt-1 leading-none">
-                      <span className="text-sm font-extrabold text-[#172337]">₹{product.price.toLocaleString('en-IN')}</span>
-                      <span className="text-xs text-[#64748B] line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                      <span className="text-[10px] font-bold text-[#FF6B00]">{discount}% Off</span>
+                    {/* Price and discount badges details */}
+                    <div className="flex items-baseline gap-2 mt-1 leading-none font-numbers">
+                      <span className="text-sm font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                      <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                      <span className="text-[9.5px] font-bold text-brand-orange bg-orange-50 border border-brand-orange/10 px-2 py-0.5 rounded-full uppercase tracking-wider">{discount}% Off</span>
                     </div>
                   </div>
                 );
@@ -218,16 +364,21 @@ export const VerticalShop: React.FC = () => {
           </div>
 
           {/* Section 2: Electronics & Audio */}
-          <div className="w-full bg-white p-5 rounded-sm shadow-fk flex flex-col gap-4 border border-fk-border">
-            <div className="flex justify-between items-center border-b border-fk-border pb-3">
-              <div className="flex items-center gap-2">
-                <span className="h-5 w-1 bg-[#2874F0] rounded-full"></span>
-                <h3 className="text-sm font-extrabold text-[#172337] uppercase tracking-wide">Hot Electronics & Audio Deals</h3>
+          <div className="w-full bg-brand-card p-8 rounded-card shadow-premium flex flex-col gap-6 border border-brand-border">
+            <div className="flex justify-between items-center border-b border-brand-border pb-4 leading-none">
+              <div className="flex items-center gap-2.5">
+                <span className="h-4 w-1 bg-brand-blue rounded-full"></span>
+                <h3 className="text-xs font-semibold text-brand-graphite uppercase tracking-wider font-heading">Hot Electronics & Audio Deals</h3>
               </div>
-              <button onClick={() => navigateTo('search')} className="text-xs font-bold text-[#2874F0] hover:underline">VIEW ALL</button>
+              <button 
+                onClick={() => navigateTo('search')} 
+                className="text-xs font-semibold text-brand-blue hover:text-blue-600 transition-colors uppercase tracking-wider"
+              >
+                View All
+              </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-6">
               {electronics.map(product => {
                 const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
                 const isWishlisted = wishlist[product.id];
@@ -235,43 +386,50 @@ export const VerticalShop: React.FC = () => {
                   <div
                     key={product.id}
                     onClick={() => navigateTo('detail', product.id)}
-                    className="border border-fk-border rounded-md p-4 flex flex-col bg-white hover:shadow-fkCardHover hover:-translate-y-0.5 transition-all duration-300 cursor-pointer h-full group relative"
+                    className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card hover:shadow-hover-lift hover:-translate-y-1.5 transition-all duration-500 ease-out cursor-pointer h-full group relative"
                   >
                     {/* Wishlist Button */}
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.8 }}
                       onClick={(e) => toggleWishlist(product.id, e)}
-                      className="absolute top-3 right-3 p-1.5 rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-[#E53935] shadow-sm border border-fk-border transition-colors z-10"
+                      className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
                     >
-                      <Heart size={13} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-                    </button>
+                      <Heart size={13} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                    </motion.button>
 
-                    <div className="w-full aspect-square flex items-center justify-center mb-4 relative overflow-hidden rounded bg-slate-50 p-2">
-                      <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                    <div className="w-full aspect-square flex items-center justify-center mb-5 relative overflow-hidden rounded-card bg-brand-elevated border border-brand-border/40 p-2.5 shadow-soft">
+                      <img 
+                        src={product.image} 
+                        alt={product.title} 
+                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
+                      />
                       {product.isAssured && (
                         <img
                           src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
                           alt="Assured"
-                          className="h-3.5 object-contain absolute bottom-2 left-2 shadow-xs"
+                          className="h-3.5 object-contain absolute bottom-3.5 left-3.5 shadow-soft"
                         />
                       )}
                     </div>
 
-                    <h4 className="text-xs font-bold text-[#172337] line-clamp-2 leading-relaxed mb-2 group-hover:text-[#2874F0] transition-colors min-h-[36px]">
+                    <h4 className="text-xs font-medium text-brand-graphite line-clamp-2 leading-relaxed mb-3.5 group-hover:text-brand-blue transition-colors min-h-[36px] font-heading">
                       {product.title}
                     </h4>
 
-                    <div className="flex items-center gap-2 mb-2.5 mt-auto leading-none">
-                      <div className="flex items-center gap-0.5 bg-[#16A34A] text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded shadow-xs">
+                    {/* Ratings and Count Row */}
+                    <div className="flex items-center gap-2 mb-4 mt-auto leading-none select-none">
+                      <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-semibold text-[9px] px-2 py-0.5 rounded shadow-soft font-numbers">
                         <span>{product.rating}</span>
-                        <Star size={8} className="fill-white text-white" />
+                        <Star size={8} className="fill-brand-green text-brand-green" />
                       </div>
-                      <span className="text-[10px] text-[#64748B] font-semibold">({product.ratingCount.toLocaleString('en-IN')})</span>
+                      <span className="text-[10px] text-brand-slate font-semibold font-numbers">({product.ratingCount.toLocaleString('en-IN')} ratings)</span>
                     </div>
 
-                    <div className="flex items-baseline gap-1.5 mt-1 leading-none">
-                      <span className="text-sm font-extrabold text-[#172337]">₹{product.price.toLocaleString('en-IN')}</span>
-                      <span className="text-xs text-[#64748B] line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                      <span className="text-[10px] font-bold text-[#FF6B00]">{discount}% Off</span>
+                    {/* Price and discount badges details */}
+                    <div className="flex items-baseline gap-2 mt-1 leading-none font-numbers">
+                      <span className="text-sm font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                      <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                      <span className="text-[9.5px] font-bold text-brand-orange bg-orange-50 border border-brand-orange/10 px-2 py-0.5 rounded-full uppercase tracking-wider">{discount}% Off</span>
                     </div>
                   </div>
                 );
@@ -281,39 +439,44 @@ export const VerticalShop: React.FC = () => {
         </div>
 
         {/* Right Column: Promotional Sidebar / Advertisements (Span 1) */}
-        <div className="col-span-1 flex flex-col gap-4">
-          <div className="w-full bg-white p-5 rounded-sm shadow-fk flex flex-col gap-4 border border-fk-border">
-            <span className="font-extrabold text-xs tracking-wider text-[#172337] uppercase">Shop Premium Partner</span>
-            <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-inner group cursor-pointer bg-neutral-900">
+        <div className="col-span-1 flex flex-col gap-6 sticky top-[140px]">
+          <div className="w-full bg-brand-card p-6 rounded-card shadow-premium flex flex-col gap-4 border border-brand-border">
+            <span className="font-bold text-[9px] tracking-widest text-brand-slate uppercase font-heading">Spotlight Brand</span>
+            <div className="relative aspect-[3/4] rounded-card overflow-hidden shadow-inner group cursor-pointer bg-neutral-900">
               <img
                 src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format"
-                alt="Nike Ad"
-                className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-300"
+                alt="Ad"
+                className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700 ease-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-fk-yellow mb-1">Brand Spotlight</span>
-                <h4 className="text-base font-extrabold leading-tight mb-1">Step Into The Future</h4>
-                <p className="text-[11px] text-gray-300 leading-normal mb-3">Air Jordan collection at lowest prices.</p>
-                <button
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-graphite via-transparent to-transparent flex flex-col justify-end p-5 text-white">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-brand-orange bg-orange-50/15 border border-brand-orange/20 px-2 py-0.5 rounded w-max mb-1.5 font-heading">
+                  Partnership
+                </span>
+                <h4 className="text-base font-bold leading-tight mb-1 font-heading">Active Jordan series</h4>
+                <p className="text-[10.5px] text-zinc-300 leading-normal mb-4 font-medium">Claim premium cashbacks instantly.</p>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => navigateTo('search')}
-                  className="px-4 py-2 bg-[#2874F0] text-white rounded font-bold text-[9px] tracking-wide w-max shadow hover:bg-[#1557D6] transition-colors"
+                  className="px-4.5 py-2 bg-brand-blue text-white rounded-button font-bold text-[9.5px] tracking-wide w-max shadow hover:bg-blue-650 transition-colors uppercase font-heading"
                 >
-                  EXPLORE NOW
-                </button>
+                  Shop Now
+                </motion.button>
               </div>
             </div>
           </div>
 
-          <div className="w-full bg-white p-5 rounded-sm shadow-fk flex flex-col gap-3 border border-fk-border">
+          <div className="w-full bg-brand-card p-6 rounded-card shadow-premium flex flex-col gap-3.5 border border-brand-border text-left">
             <div className="flex gap-3 items-center">
-              <Award size={20} className="text-[#FF6B00]" />
-              <div className="flex flex-col leading-tight text-left">
-                <span className="font-extrabold text-xs text-[#172337]">Flipkart Plus Partner</span>
-                <span className="text-[10px] text-[#64748B] font-semibold">Guaranteed free shipping</span>
+              <div className="w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center text-brand-orange border border-brand-orange/10 shadow-soft">
+                <Award size={16} />
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="font-semibold text-xs text-brand-graphite font-heading">Plus Guaranteed Partner</span>
+                <span className="text-[9.5px] text-brand-slate font-bold">1-day fast delivery</span>
               </div>
             </div>
-            <p className="text-[11px] text-[#64748B] leading-relaxed border-t border-fk-border pt-2.5 text-left font-medium">
-              Enjoy 1-day delivery and special discount prices on items displaying the <strong>Flipkart Assured</strong> badge.
+            <p className="text-[11px] text-brand-slate leading-relaxed border-t border-brand-border pt-3.5 font-semibold">
+              Enjoy 1-day delivery and special discount prices on items displaying the <strong>ShopIndia Assured</strong> badge.
             </p>
           </div>
         </div>

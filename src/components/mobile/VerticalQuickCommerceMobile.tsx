@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PRODUCTS, CATEGORIES } from '../../data/mockData';
 import { Plus, Minus, ShoppingBag, Clock, ArrowRight, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const VerticalQuickCommerceMobile: React.FC = () => {
   const { cart, addToCart, updateQuantity, navigateTo } = useApp();
@@ -27,14 +28,14 @@ export const VerticalQuickCommerceMobile: React.FC = () => {
   const activeCartTotal = activeCartItems.reduce((acc, i) => acc + i.product.price * i.quantity, 0);
 
   return (
-    <div className="w-full flex flex-col gap-2.5 py-3.5 px-3 bg-slate-50 min-h-screen text-[#172337] pb-28">
+    <div className="w-full flex flex-col gap-3 py-3.5 px-3 bg-[#FAF9F6] min-h-screen text-brand-graphite font-sans pb-28">
       {/* 10 Min Header Strip */}
-      <div className="w-full py-2 px-3.5 rounded-md bg-[#eefcf2] text-[#16A34A] flex justify-between items-center text-[10px] font-bold border border-[#16A34A]/10">
+      <div className="w-full py-2 px-3.5 rounded-[16px] bg-[#ECFDF5] text-brand-green flex justify-between items-center text-[10px] font-bold border border-brand-green/10 font-heading">
         <span className="flex items-center gap-1.5">
           <Clock size={12} className="animate-pulse" />
-          Delivering groceries in 10 minutes
+          Delivered in 10 minutes from store
         </span>
-        <span className="text-[8px] uppercase tracking-wider bg-[#16A34A] text-white px-2 py-0.5 rounded">10 MINS</span>
+        <span className="text-[8px] uppercase tracking-wider bg-brand-green text-white px-2 py-0.5 rounded-full font-black">10 MINS</span>
       </div>
 
       {/* Horizontal Scroll Categories Tag List */}
@@ -43,10 +44,10 @@ export const VerticalQuickCommerceMobile: React.FC = () => {
           <button
             key={cat.id}
             onClick={() => setActiveCat(cat.id)}
-            className={`px-4 py-2 rounded-full font-bold text-[10px] whitespace-nowrap tracking-wide border transition-all ${
+            className={`px-4.5 py-2.5 rounded-full font-bold text-[10px] whitespace-nowrap tracking-wide border transition-all font-heading ${
               activeCat === cat.id
-                ? 'bg-[#16A34A] text-white border-[#16A34A] shadow-sm'
-                : 'bg-white text-slate-600 border-fk-border hover:text-[#172337]'
+                ? 'bg-brand-green text-white border-brand-green shadow-soft font-black'
+                : 'bg-white text-brand-slate border-brand-border hover:text-brand-graphite'
             }`}
           >
             {cat.name}
@@ -55,7 +56,7 @@ export const VerticalQuickCommerceMobile: React.FC = () => {
       </div>
 
       {/* Grid List (2-column layout) */}
-      <div className="grid grid-cols-2 gap-2 mt-1 select-none">
+      <div className="grid grid-cols-2 gap-2.5 mt-1 select-none">
         {currentProducts.map(product => {
           const qty = getCartQty(product.id);
           const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
@@ -65,57 +66,59 @@ export const VerticalQuickCommerceMobile: React.FC = () => {
             <div
               key={product.id}
               onClick={() => navigateTo('detail', product.id)}
-              className="bg-white border border-fk-border rounded-lg p-3 flex flex-col relative h-full cursor-pointer hover:shadow-sm"
+              className="bg-white border border-brand-border rounded-[20px] p-3 flex flex-col relative h-full cursor-pointer hover:shadow-soft"
             >
               {/* Wishlist Button */}
-              <button
+              <motion.button
+                whileTap={{ scale: 0.85 }}
                 onClick={(e) => toggleWishlist(product.id, e)}
-                className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-gray-400 hover:text-[#E53935] shadow-xs border border-fk-border transition-colors z-10"
+                className="absolute top-2 right-2 p-1.5 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
               >
-                <Heart size={11} className={isWishlisted ? "fill-[#E53935] text-[#E53935]" : ""} />
-              </button>
+                <Heart size={11} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+              </motion.button>
 
               {/* Discount tag overlay */}
               {discount > 0 && (
-                <span className="absolute top-2 left-2 bg-[#16A34A] text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded shadow-xs z-10">
+                <span className="absolute top-2 left-2 bg-[#ECFDF5] text-brand-green text-[8px] font-black px-1.5 py-0.5 rounded shadow-soft z-10 font-numbers uppercase tracking-wider">
                   {discount}% OFF
                 </span>
               )}
 
               {/* Product Image */}
-              <div className="w-full aspect-square flex items-center justify-center mb-2.5 bg-slate-50 rounded overflow-hidden p-1.5">
+              <div className="w-full aspect-square flex items-center justify-center mb-2.5 bg-brand-elevated rounded-[20px] overflow-hidden p-1.5 shadow-soft border border-brand-border/40">
                 <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain rounded" />
               </div>
 
               {/* Title & Info */}
-              <h3 className="text-[10px] font-bold text-[#172337] line-clamp-2 leading-snug mb-0.5 min-h-[30px]">
+              <h3 className="text-[10px] font-bold text-brand-graphite line-clamp-2 leading-snug mb-0.5 min-h-[30px] font-heading">
                 {product.title}
               </h3>
-              <span className="text-[9px] text-[#64748B] font-bold mb-3.5">
+              <span className="text-[9px] text-brand-slate font-extrabold mb-3.5">
                 {product.specs?.['Weight'] || product.specs?.['Volume'] || 'Pack'}
               </span>
 
               {/* Price & Quantity Actions Row */}
-              <div className="flex items-center justify-between mt-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mt-auto font-numbers" onClick={(e) => e.stopPropagation()}>
                 <div className="flex flex-col leading-none">
-                  <span className="text-xs font-extrabold text-[#172337]">₹{product.price}</span>
+                  <span className="text-xs font-extrabold text-brand-graphite">₹{product.price}</span>
                   {product.originalPrice > product.price && (
-                    <span className="text-[9px] text-[#64748B] line-through mt-0.5">₹{product.originalPrice}</span>
+                    <span className="text-[9px] text-brand-slate line-through mt-0.5">₹{product.originalPrice}</span>
                   )}
                 </div>
 
                 {qty === 0 ? (
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => addToCart(product)}
-                    className="px-3.5 py-1.5 border border-[#16A34A]/40 bg-[#eefcf2] text-[#16A34A] text-[10px] font-extrabold rounded uppercase shadow-xs transition-colors"
+                    className="px-3.5 py-1.5 border border-brand-green/20 bg-[#ECFDF5] text-brand-green text-[10px] font-black rounded-button uppercase shadow-soft transition-colors"
                   >
                     Add
-                  </button>
+                  </motion.button>
                 ) : (
-                  <div className="flex items-center border border-[#16A34A] bg-[#16A34A] text-white rounded overflow-hidden text-[10px] font-extrabold shadow-xs">
+                  <div className="flex items-center border border-brand-green bg-brand-green text-white rounded-button overflow-hidden text-[10px] font-extrabold shadow-soft">
                     <button
                       onClick={() => updateQuantity(product.id, qty - 1)}
-                      className="px-1.5 py-1.5 hover:bg-green-700 transition-colors"
+                      className="px-1.5 py-1.5 hover:bg-emerald-700 transition-colors"
                       aria-label="Decrease quantity"
                     >
                       <Minus size={10} strokeWidth={3} />
@@ -123,7 +126,7 @@ export const VerticalQuickCommerceMobile: React.FC = () => {
                     <span className="px-2 min-w-[15px] text-center select-none">{qty}</span>
                     <button
                       onClick={() => updateQuantity(product.id, qty + 1)}
-                      className="px-1.5 py-1.5 hover:bg-green-700 transition-colors"
+                      className="px-1.5 py-1.5 hover:bg-emerald-700 transition-colors"
                       aria-label="Increase quantity"
                     >
                       <Plus size={10} strokeWidth={3} />
@@ -138,22 +141,22 @@ export const VerticalQuickCommerceMobile: React.FC = () => {
 
       {/* Floating Bottom Cart Bar for Quick Commerce (Blinkit style on Mobile) */}
       {activeCartCount > 0 && (
-        <div className="fixed bottom-16 left-3 right-3 bg-[#16A34A] text-white px-4 py-2.5 rounded-lg shadow-lg flex items-center justify-between z-40 transition-transform duration-300 hover:bg-[#1557D6]">
+        <div className="fixed bottom-16 left-3 right-3 bg-brand-green text-white px-4 py-2.5 rounded-[20px] shadow-hover-lift flex items-center justify-between z-40 transition-transform duration-300 hover:bg-emerald-600">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded bg-green-800/40 relative">
               <ShoppingBag size={15} />
-              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-quick-yellow text-[8px] font-extrabold text-gray-900">
+              <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-brand-orange text-[8px] font-black text-white font-numbers">
                 {activeCartCount}
               </span>
             </div>
             <div className="flex flex-col leading-none text-left">
-              <span className="font-extrabold text-xs">₹{activeCartTotal.toLocaleString('en-IN')}</span>
-              <span className="text-[8px] text-emerald-100 font-bold uppercase tracking-wider">Checkout Quick Cart</span>
+              <span className="font-extrabold text-xs font-numbers">₹{activeCartTotal.toLocaleString('en-IN')}</span>
+              <span className="text-[8px] text-emerald-100 font-extrabold uppercase tracking-widest font-heading">Quick Checkout</span>
             </div>
           </div>
           <button
             onClick={() => navigateTo('cart')}
-            className="flex items-center gap-1 bg-white text-[#16A34A] px-3 py-1 rounded text-[10px] font-extrabold shadow hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-1 bg-white text-brand-green px-3.5 py-1.5 rounded-button text-[10px] font-black shadow hover:bg-slate-50 transition-colors uppercase tracking-wider"
           >
             <span>Proceed</span>
             <ArrowRight size={12} />

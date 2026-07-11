@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PRODUCTS } from '../data/mockData';
+import { useProducts } from '../hooks/useProducts';
 import { useIsMobile } from '../hooks/useMediaQuery';
-import { Star, ShoppingCart, Zap, ArrowLeft, Heart, Share2, MapPin, BadgePercent, ChevronRight } from 'lucide-react';
+import { Star, ShoppingCart, Zap, ArrowLeft, Heart, Share2, MapPin, BadgePercent, ChevronRight, ShieldCheck, Truck, RefreshCcw, Mic, Battery, Bluetooth, Cpu, Smartphone } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const ProductDetailPage: React.FC = () => {
   const { selectedProductId, addToCart, navigateTo, goBack, currentVertical } = useApp();
   const isMobile = useIsMobile();
+  const { products, loading } = useProducts();
   const [pincode, setPincode] = useState('');
   const [pincodeCheckResult, setPincodeCheckResult] = useState<string | null>(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   // Retrieve the selected product
-  const product = PRODUCTS.find(p => p.id === selectedProductId) || PRODUCTS[0];
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  const product = products.find(p => p.id === selectedProductId);
+  const discount = product ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   const handlePincodeCheck = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,12 +27,14 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product);
+    if (product) addToCart(product);
   };
 
   const handleBuyNow = () => {
-    addToCart(product);
-    navigateTo('cart');
+    if (product) {
+      addToCart(product);
+      navigateTo('cart');
+    }
   };
 
   const isServices = currentVertical === 'services';
@@ -43,6 +46,33 @@ export const ProductDetailPage: React.FC = () => {
 
   // Desktop Page Layout
   const renderDesktop = () => {
+    if (loading) {
+      return (
+        <div className="max-w-7xl mx-auto px-12 py-8 text-left">
+          <div className="animate-pulse flex flex-col gap-8">
+            <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+            <div className="grid grid-cols-5 gap-8">
+              <div className="col-span-2 h-[500px] bg-slate-200 rounded-[20px]"></div>
+              <div className="col-span-3 flex flex-col gap-4">
+                <div className="h-10 bg-slate-200 rounded w-3/4"></div>
+                <div className="h-6 bg-slate-200 rounded w-1/2"></div>
+                <div className="h-20 bg-slate-200 rounded w-full mt-4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!product) {
+      return (
+        <div className="max-w-7xl mx-auto px-12 py-20 text-center">
+          <h2 className="text-2xl font-bold text-brand-slate">Product not found</h2>
+          <button onClick={() => navigateTo('home')} className="mt-4 px-6 py-2 bg-brand-blue text-white rounded-full">Return Home</button>
+        </div>
+      );
+    }
+
     return (
       <div className="max-w-7xl mx-auto px-12 py-8 text-left select-none text-brand-graphite font-sans">
         {/* Breadcrumbs */}
@@ -217,31 +247,69 @@ export const ProductDetailPage: React.FC = () => {
 
   // Mobile Page Layout
   const renderMobile = () => {
+    if (loading) {
+      return (
+        <div className="pb-24 bg-white animate-pulse">
+          <div className="w-full aspect-square bg-slate-200"></div>
+          <div className="p-4 flex flex-col gap-3">
+            <div className="h-8 bg-slate-200 rounded w-3/4"></div>
+            <div className="h-6 bg-slate-200 rounded w-1/2"></div>
+            <div className="h-16 bg-slate-200 rounded w-full mt-2"></div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!product) {
+      return (
+        <div className="py-20 text-center">
+          <h2 className="text-xl font-bold text-brand-slate">Product not found</h2>
+          <button onClick={() => navigateTo('home')} className="mt-4 px-6 py-2 bg-brand-blue text-white rounded-full">Return Home</button>
+        </div>
+      );
+    }
+
     return (
-      <div className="w-full flex flex-col bg-[#FAF9F6] min-h-screen text-left pb-28 select-none text-brand-graphite font-sans">
+      <div className="w-full flex flex-col bg-white min-h-screen text-left pb-36 select-none text-brand-graphite font-sans selection:bg-brand-blue/20">
         {/* Navigation header row */}
-        <div className={`px-4 py-3.5 sticky top-12 z-30 flex items-center justify-between border-b ${
-          isServices ? 'bg-zinc-900 border-zinc-850 text-white' : 'bg-white border-brand-border text-brand-graphite'
+        <div className={`px-4 py-3.5 sticky top-0 z-30 flex items-center justify-between border-b transition-colors ${
+          isServices ? 'bg-zinc-900/90 backdrop-blur-xl border-zinc-850 text-white' : 'bg-white/80 backdrop-blur-xl border-slate-200/60 text-brand-graphite shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]'
         }`}>
-          <button onClick={goBack} className="p-1">
-            <ArrowLeft size={18} />
+          <button 
+            onClick={goBack} 
+            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors active:scale-95"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} className="text-zinc-700" />
           </button>
-          <span className="font-extrabold text-xs tracking-wide font-heading uppercase">Product Details</span>
+          <span className="font-extrabold text-xs tracking-wide font-heading uppercase text-zinc-800">Product Details</span>
           <div className="flex gap-3">
-            <button onClick={() => setIsWishlisted(!isWishlisted)}>
-              <Heart size={18} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+            <button 
+              onClick={() => setIsWishlisted(!isWishlisted)}
+              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors active:scale-95"
+            >
+              <Heart size={16} strokeWidth={2.5} className={isWishlisted ? "fill-brand-red text-brand-red" : "text-zinc-700"} />
             </button>
-            <Share2 size={18} className="text-brand-slate" />
+            <button className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors active:scale-95">
+              <Share2 size={16} strokeWidth={2.5} className="text-zinc-700" />
+            </button>
           </div>
         </div>
 
         {/* Large picture */}
-        <div className={`w-full aspect-[4/3] flex items-center justify-center p-6 border-b relative ${
-          isServices ? 'bg-[#2C2C2E] border-zinc-800' : 'bg-white border-brand-border'
+        <div className={`w-full aspect-square sm:aspect-[4/3] flex items-center justify-center p-10 border-b relative overflow-hidden ${
+          isServices ? 'bg-[#1C1C1E] border-zinc-800' : 'bg-gradient-to-b from-slate-50 via-white to-slate-50/40 border-slate-200/60'
         }`}>
-          <img src={product.image} alt={product.title} className="max-h-full max-w-full object-contain rounded" />
+          {/* Subtle background glow effect */}
+          {!isServices && <div className="absolute inset-0 bg-brand-blue/5 blur-3xl rounded-full scale-150 opacity-40 mix-blend-multiply"></div>}
+          
+          <img 
+            src={product.image} 
+            alt={product.title} 
+            className="max-h-full max-w-full object-contain drop-shadow-[0_16px_32px_rgba(0,0,0,0.12)] z-10 transition-transform duration-500 ease-out hover:scale-[1.03]" 
+          />
+          
           {product.isAssured && (
-            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
+            <div className="absolute bottom-4 left-4 z-20 flex items-center gap-0.5 bg-white/95 text-[10px] font-black italic px-2 py-1 rounded-full border border-blue-100 shadow-[0_4px_12px_rgba(0,0,0,0.08)] backdrop-blur-md">
               <span className="text-brand-blue">ShopIndia</span>
               <span className="text-brand-orange">Assured</span>
             </div>
@@ -249,47 +317,47 @@ export const ProductDetailPage: React.FC = () => {
         </div>
 
         {/* Product details */}
-        <div className="p-4 flex flex-col gap-4">
-          <div>
-            <h1 className="text-xs font-bold leading-normal mb-1.5 font-heading text-brand-graphite">{product.title}</h1>
-            <div className="flex items-center gap-1.5 leading-none">
-              <div className="flex items-center gap-0.5 bg-brand-green text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded font-numbers">
+        <div className="p-5 flex flex-col gap-6">
+          <div className="flex flex-col gap-3">
+            <h1 className="text-[17px] font-extrabold leading-snug tracking-tight font-heading text-brand-graphite">{product.title}</h1>
+            <div className="flex items-center gap-2.5 leading-none">
+              <div className="flex items-center justify-center gap-0.5 bg-[#17B169] text-white font-black text-[11px] px-2 py-0.5 rounded-[5px] font-numbers shadow-[0_2px_8px_rgba(23,177,105,0.25)]">
                 <span>{product.rating}</span>
-                <Star size={7} className="fill-white text-white" />
+                <Star size={9} className="fill-white text-white" />
               </div>
-              <span className="text-[10px] text-brand-slate font-bold font-numbers">({product.ratingCount.toLocaleString('en-IN')} Reviews)</span>
+              <span className="text-xs text-slate-500 font-bold font-numbers tracking-tight">({product.ratingCount.toLocaleString('en-IN')} Reviews)</span>
             </div>
           </div>
 
           {/* Pricing detail */}
-          <div className="flex items-baseline gap-2 border-b border-brand-border pb-3.5 leading-none font-numbers">
-            <span className="text-lg font-black text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+          <div className="flex items-end gap-2.5 border-b border-slate-200/60 pb-6 leading-none font-numbers">
+            <span className="text-3xl font-black text-brand-graphite tracking-tighter">₹{product.price.toLocaleString('en-IN')}</span>
             {product.originalPrice > product.price && (
               <>
-                <span className="text-[11px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                <span className="text-[10px] font-black text-brand-orange uppercase tracking-wider">{discount}% OFF</span>
+                <span className="text-[13px] text-slate-400 line-through mb-1 font-semibold">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                <span className="text-[10px] font-black text-brand-orange uppercase tracking-widest mb-1.5 bg-orange-50 px-1.5 py-0.5 rounded text-orange-600">{discount}% OFF</span>
               </>
             )}
           </div>
 
           {/* Delivery checker */}
-          <div className="flex flex-col gap-2 py-1">
-            <span className="text-[9px] uppercase font-black tracking-widest text-brand-slate font-heading">Pincode Check</span>
-            <form onSubmit={handlePincodeCheck} className="flex gap-2 max-w-xs">
+          <div className="flex flex-col gap-3 py-1">
+            <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 font-heading">Delivery to</span>
+            <form onSubmit={handlePincodeCheck} className="flex gap-2 w-full max-w-sm relative">
               <input
                 type="text"
                 maxLength={6}
                 placeholder="Enter 6-digit code"
                 value={pincode}
                 onChange={(e) => setPincode(e.target.value)}
-                className="w-full px-3.5 py-2 border border-brand-border bg-white rounded-input text-xs font-bold focus:outline-none"
+                className="w-full pl-5 pr-24 py-3.5 bg-slate-100/80 border-transparent rounded-full text-[13px] font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue/30 transition-all placeholder:text-slate-400"
               />
-              <button type="submit" className="px-4.5 bg-brand-blue text-white rounded-button text-[10px] font-black uppercase tracking-wider">
+              <button type="submit" className="absolute right-1.5 top-1.5 bottom-1.5 px-5 bg-zinc-900 text-white rounded-full text-[10px] font-black uppercase tracking-wider hover:bg-zinc-800 active:scale-95 transition-all shadow-sm">
                 Check
               </button>
             </form>
             {pincodeCheckResult && (
-              <span className={`text-[10px] font-bold ${pincodeCheckResult.includes('Invalid') ? 'text-brand-red' : 'text-brand-green'}`}>
+              <span className={`text-[11px] font-bold pl-1 ${pincodeCheckResult.includes('Invalid') ? 'text-brand-red' : 'text-[#17B169]'}`}>
                 {pincodeCheckResult}
               </span>
             )}
@@ -297,36 +365,80 @@ export const ProductDetailPage: React.FC = () => {
 
           {/* Key Specs */}
           {product.specs && Object.keys(product.specs).length > 0 && (
-            <div className="flex flex-col gap-2">
-              <span className="text-[9px] uppercase font-black tracking-widest text-brand-slate font-heading">Key Specifications</span>
-              <div className="border border-brand-border rounded-card overflow-hidden text-[10px] shadow-soft">
-                {Object.entries(product.specs).map(([key, val], idx) => (
-                  <div key={key} className={`grid grid-cols-3 p-2.5 ${
-                    idx % 2 === 0 ? 'bg-slate-50/50' : 'bg-white'
-                  } border-b border-brand-border last:border-0`}>
-                    <span className="font-bold text-brand-slate">{key}</span>
-                    <span className="col-span-2 font-bold text-brand-graphite">{val}</span>
-                  </div>
-                ))}
+            <div className="flex flex-col gap-3 mt-1">
+              <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 font-heading">Key Specifications</span>
+              <div className="flex flex-col gap-2.5">
+                {Object.entries(product.specs).map(([key, val]) => {
+                  const keyLower = key.toLowerCase();
+                  let Icon = Zap;
+                  if (keyLower.includes('mic') || keyLower.includes('audio')) Icon = Mic;
+                  else if (keyLower.includes('battery') || keyLower.includes('power')) Icon = Battery;
+                  else if (keyLower.includes('connect') || keyLower.includes('bluetooth')) Icon = Bluetooth;
+                  else if (keyLower.includes('processor') || keyLower.includes('chip')) Icon = Cpu;
+                  else if (keyLower.includes('display') || keyLower.includes('screen')) Icon = Smartphone;
+                  
+                  return (
+                    <div key={key} className="flex items-center gap-3.5 p-4 bg-slate-50/80 border border-slate-200/50 rounded-2xl transition-colors hover:bg-slate-100/80">
+                      <div className="text-zinc-600 shrink-0 w-8 flex justify-center bg-white p-2 rounded-full shadow-sm border border-slate-100">
+                        <Icon size={16} strokeWidth={2.5} />
+                      </div>
+                      <div className="grid grid-cols-[1fr_1.5fr] w-full items-center gap-3">
+                        <span className="text-xs font-bold text-slate-500">{key}</span>
+                        <span className="text-[13px] font-black text-zinc-800 leading-tight">{val}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
+
+          {/* Trust Badges */}
+          <div className="grid grid-cols-3 gap-2 p-5 mt-4 bg-white rounded-2xl border border-slate-200/60 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)]">
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="bg-slate-50 p-2.5 rounded-full text-zinc-700">
+                <ShieldCheck size={18} strokeWidth={2.5} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-zinc-800 tracking-tight">100% Original</span>
+                <span className="text-[9px] font-bold text-slate-400">Products</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2 relative before:content-[''] before:absolute before:left-0 before:top-[10%] before:h-[80%] before:w-px before:bg-slate-100">
+              <div className="bg-slate-50 p-2.5 rounded-full text-zinc-700">
+                <Truck size={18} strokeWidth={2.5} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-zinc-800 tracking-tight">Fast Delivery</span>
+                <span className="text-[9px] font-bold text-slate-400">In Minutes</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2 relative before:content-[''] before:absolute before:left-0 before:top-[10%] before:h-[80%] before:w-px before:bg-slate-100">
+              <div className="bg-slate-50 p-2.5 rounded-full text-zinc-700">
+                <RefreshCcw size={18} strokeWidth={2.5} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-zinc-800 tracking-tight">Easy Returns</span>
+                <span className="text-[9px] font-bold text-slate-400">Hassle Free</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Floating Mobile Bottom CTA Buttons (16px button curves) */}
-        <div className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-brand-border grid grid-cols-2 items-center z-45 text-center text-xs font-extrabold select-none shadow-premium">
+        {/* Floating Mobile Bottom CTA Buttons (Pill shaped) */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 grid grid-cols-2 items-center z-45 text-center text-xs font-extrabold select-none shadow-[0_-8px_20px_-8px_rgba(0,0,0,0.1)] px-4 py-3 pb-safe gap-3">
           <button
             onClick={handleAddToCart}
-            className="w-full h-full text-brand-graphite bg-white border-r border-brand-border flex items-center justify-center gap-1.5 uppercase hover:bg-slate-50 transition-colors font-heading"
+            className="w-full h-[52px] text-zinc-800 bg-white border-2 border-slate-200/80 flex items-center justify-center gap-2 uppercase hover:bg-slate-50 active:scale-[0.98] transition-all font-heading rounded-full tracking-wide shadow-sm"
           >
-            <ShoppingCart size={15} />
+            <ShoppingCart size={17} strokeWidth={2.5} />
             <span>Add to Cart</span>
           </button>
           <button
             onClick={handleBuyNow}
-            className="w-full h-full bg-brand-blue text-white flex items-center justify-center gap-1.5 uppercase hover:bg-blue-650 transition-all font-heading"
+            className="w-full h-[52px] bg-[#0A1022] text-white flex items-center justify-center gap-2 uppercase hover:bg-black active:scale-[0.98] transition-all font-heading rounded-full tracking-wide shadow-[0_4px_14px_rgba(10,16,34,0.3)]"
           >
-            <Zap size={15} />
+            <Zap size={17} fill="white" strokeWidth={2} />
             <span>Buy Now</span>
           </button>
         </div>

@@ -3,8 +3,6 @@ import { useApp } from '../../context/AppContext';
 import { PRODUCTS, BANNERS } from '../../data/mockData';
 import { 
   Star, Clock, Heart, ChevronRight, 
-  LayoutGrid, ShoppingBag, Smartphone, Shirt, Sparkles, 
-  Pill, Utensils, CupSoda, Smile, MoreHorizontal,
   Truck, Award, RotateCcw, ShieldCheck, Apple
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -47,17 +45,18 @@ export const VerticalShopMobile: React.FC = () => {
   const formatNumber = (num: number) => String(num).padStart(2, '0');
 
   // 2x5 Mobile Categories circular list (styled with pastel background rings)
+  // Premium 3D Categories matching the mockup
   const mobileCategoriesList = [
-    { name: 'All Categories', icon: LayoutGrid, color: 'bg-indigo-50 text-indigo-600', query: '' },
-    { name: 'Grocery', icon: ShoppingBag, color: 'bg-emerald-50 text-emerald-600', query: 'Grocery', vertical: 'quick' },
-    { name: 'Electronics', icon: Smartphone, color: 'bg-blue-50 text-blue-600', query: 'Electronics' },
-    { name: 'Fashion', icon: Shirt, color: 'bg-purple-50 text-purple-600', query: 'Fashion' },
-    { name: 'Beauty', icon: Sparkles, color: 'bg-pink-50 text-pink-600', query: 'Beauty' },
-    { name: 'Pharmacy', icon: Pill, color: 'bg-red-50 text-red-600', query: 'Pharmacy' },
-    { name: 'Home & Kitchen', icon: Utensils, color: 'bg-amber-50 text-amber-600', query: 'Home' },
-    { name: 'Food & Drinks', icon: CupSoda, color: 'bg-cyan-50 text-cyan-600', query: 'Snacks' },
-    { name: 'Baby Care', icon: Smile, color: 'bg-teal-50 text-teal-600', query: 'Baby' },
-    { name: 'More', icon: MoreHorizontal, color: 'bg-slate-50 text-slate-600', query: '' }
+    { name: 'All Categories', image: '/categories/mobiles.png', color: 'bg-indigo-50 text-indigo-600', query: '' },
+    { name: 'Grocery', image: '/categories/grocery.png', color: 'bg-emerald-50 text-emerald-600', query: 'Grocery', vertical: 'quick' },
+    { name: 'Electronics', image: '/categories/headphones.png', color: 'bg-blue-50 text-blue-600', query: 'Electronics' },
+    { name: 'Fashion', image: '/categories/tshirt.png', color: 'bg-purple-50 text-purple-600', query: 'Fashion' },
+    { name: 'Beauty', image: '/categories/makeup.png', color: 'bg-pink-50 text-pink-600', query: 'Beauty' },
+    { name: 'Pharmacy', image: '/categories/medicine.png', color: 'bg-red-50 text-red-600', query: 'Pharmacy' },
+    { name: 'Home & Kitchen', image: '/categories/sofa.png', color: 'bg-amber-50 text-amber-600', query: 'Home' },
+    { name: 'Food & Drinks', image: '/categories/drink.png', color: 'bg-cyan-50 text-cyan-600', query: 'Snacks' },
+    { name: 'Baby Care', image: '/categories/teddy.png', color: 'bg-teal-50 text-teal-600', query: 'Baby' },
+    { name: 'More', image: '/categories/dots.png', color: 'bg-slate-50 text-slate-600', query: '' }
   ];
 
   return (
@@ -66,7 +65,6 @@ export const VerticalShopMobile: React.FC = () => {
       {/* 2. Circular Categories Grid (2x5 structure layout matching user reference) */}
       <div className="w-full bg-white border border-brand-border rounded-card p-4 shadow-soft grid grid-cols-5 gap-y-4.5 gap-x-2 select-none justify-items-center">
         {mobileCategoriesList.map((cat, idx) => {
-          const Icon = cat.icon;
           return (
             <div
               key={idx}
@@ -77,7 +75,7 @@ export const VerticalShopMobile: React.FC = () => {
               className="flex flex-col items-center text-center cursor-pointer active:scale-90 transition-transform w-14"
             >
               <div className={`w-11 h-11 rounded-full flex items-center justify-center mb-1.5 shadow-soft ${cat.color} transition-all`}>
-                <Icon size={16} strokeWidth={2.2} />
+                <img src={cat.image} alt={cat.name} className="w-[34px] h-[34px] object-contain mix-blend-multiply" onError={(e) => { e.currentTarget.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>' }} />
               </div>
               <div className="h-6.5 flex items-start justify-center w-full overflow-hidden">
                 <span className="text-[8.5px] font-semibold text-brand-graphite opacity-90 line-clamp-2 w-full tracking-tight leading-tight font-heading">

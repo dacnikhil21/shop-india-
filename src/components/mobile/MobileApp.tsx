@@ -8,7 +8,7 @@ import { ProductDetailPage } from '../../pages/ProductDetail';
 import { CartPage } from '../../pages/Cart';
 import { OrdersPage } from '../../pages/Orders';
 import { ProfilePage } from '../../pages/Profile';
-import { Home, Grid, ShoppingCart, Package, User, MapPin, X, Search, ChevronDown, ShoppingBag, Zap, Wrench } from 'lucide-react';
+import { Home, User, MapPin, X, Search, ChevronDown, ShoppingBag, Zap, Wrench, LayoutGrid, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const MobileApp: React.FC = () => {
@@ -107,6 +107,7 @@ export const MobileApp: React.FC = () => {
     <div className={`min-h-screen pb-16 flex flex-col w-full relative transition-colors duration-300 ${
       isServices ? 'bg-brand-graphite text-white font-sans' : 'bg-brand-bg text-brand-graphite font-sans'
     }`}>
+      {currentPath === 'home' && (
       <div 
         style={{ transform: showHeader ? 'translateY(0)' : 'translateY(-126px)' }}
         className={`w-full px-4 fixed top-0 left-0 right-0 z-40 transition-all duration-220 ease-in-out flex flex-col py-3.5 gap-2.5 ${
@@ -118,11 +119,11 @@ export const MobileApp: React.FC = () => {
               : 'bg-zinc-900 border-b border-zinc-800 text-white'
             : currentVertical === 'quick'
               ? showHeader
-                ? 'bg-gradient-to-b from-orange-200/70 via-orange-50/20 to-[#FAF9F6] border-b border-transparent text-brand-graphite'
-                : 'bg-[#FAF9F6] border-b border-brand-border/60 text-brand-graphite'
+                ? 'bg-gradient-to-b from-[#82B1FF] to-[#E5EFFF] border-b-0 text-[#0A1022]'
+                : 'bg-[#82B1FF] border-b border-white/20 text-[#0A1022]'
               : showHeader
-                ? 'bg-gradient-to-b from-zinc-300 via-zinc-200/50 to-[#FAF9F6] border-b border-transparent text-brand-graphite'
-                : 'bg-[#FAF9F6] border-b border-brand-border/60 text-brand-graphite'
+                ? 'bg-gradient-to-b from-[#82B1FF] to-[#E5EFFF] border-b-0 text-[#0A1022]'
+                : 'bg-[#82B1FF] border-b border-white/20 text-[#0A1022]'
         }`}
       >
         
@@ -135,26 +136,26 @@ export const MobileApp: React.FC = () => {
               const isActive = currentVertical === v;
               const config = {
                 shop: { 
-                  title: 'Shop', 
+                  title: 'ShopIndia', 
                   icon: ShoppingBag,
-                  activeClass: isServices ? 'bg-[#C5A880] text-zinc-950 border-transparent shadow-elevated' : 'bg-[#1C1C1E] text-white border-transparent shadow-elevated',
-                  inactiveClass: isServices ? 'bg-zinc-900 border-zinc-800 text-zinc-400' : 'bg-[#1C1C1E]/55 text-white/80 border-transparent',
+                  activeClass: isServices ? 'bg-[#C5A880] text-zinc-950 shadow-elevated' : 'bg-black text-white shadow-soft',
+                  inactiveClass: isServices ? 'bg-zinc-900 text-zinc-400' : 'bg-white text-slate-800 shadow-sm border border-black/5',
                   iconActive: 'text-white',
                   iconInactive: 'text-brand-blue'
                 },
                 quick: { 
                   title: '10 Min', 
                   icon: Zap,
-                  activeClass: 'bg-[#FF6600] text-white border-transparent shadow-elevated',
-                  inactiveClass: isServices ? 'bg-zinc-900 border-zinc-800 text-zinc-400' : 'bg-white border-brand-border text-brand-graphite',
-                  iconActive: 'text-white',
+                  activeClass: 'bg-[#FFDF00] text-black shadow-soft',
+                  inactiveClass: isServices ? 'bg-zinc-900 text-zinc-400' : 'bg-white text-slate-800 shadow-sm border border-black/5',
+                  iconActive: 'text-black',
                   iconInactive: 'text-brand-orange'
                 },
                 services: { 
                   title: 'Services', 
                   icon: Wrench,
-                  activeClass: 'bg-[#C5A880] text-zinc-950 border-transparent shadow-elevated',
-                  inactiveClass: isServices ? 'bg-zinc-900 border-zinc-800 text-zinc-400' : 'bg-white border-brand-border text-brand-graphite',
+                  activeClass: 'bg-[#C5A880] text-zinc-950 shadow-elevated',
+                  inactiveClass: isServices ? 'bg-zinc-900 text-zinc-400' : 'bg-white text-slate-800 shadow-sm border border-black/5',
                   iconActive: 'text-zinc-950',
                   iconInactive: 'text-teal-655'
                 }
@@ -166,20 +167,22 @@ export const MobileApp: React.FC = () => {
                 <button
                   key={v}
                   onClick={() => setCurrentVertical(v)}
-                  className={`flex flex-col items-center justify-center py-2 px-1 rounded-card border text-center relative h-[62px] transition-all duration-300 active:scale-95 focus:outline-none ${
+                  className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-[14px] text-center relative h-[44px] transition-all duration-300 active:scale-95 focus:outline-none ${
                     isActive ? item.activeClass : item.inactiveClass
                   }`}
                 >
                   {v === 'shop' ? (
-                    <img 
-                      src="/logo.png" 
-                      alt="ShopIndia" 
-                      className="h-[52px] w-auto object-contain mix-blend-screen select-none pointer-events-none"
-                    />
+                    <div className="w-full h-full absolute inset-0 flex items-center justify-center rounded-[14px] overflow-hidden">
+                      <img 
+                        src="/logo.png" 
+                        alt="ShopIndia" 
+                        className={`w-[85%] h-auto object-contain select-none pointer-events-none transition-all ${isActive ? '' : 'invert opacity-80'}`}
+                      />
+                    </div>
                   ) : (
                     <>
-                      <Icon size={14} className={`mb-1 transition-all ${isActive ? item.iconActive : item.iconInactive}`} strokeWidth={2.5} />
-                      <span className="text-[10px] font-black tracking-wide leading-none">
+                      <Icon size={14} className={`transition-all ${isActive ? item.iconActive : item.iconInactive}`} strokeWidth={2.5} />
+                      <span className={`text-[11px] tracking-wide leading-none ${isActive ? 'font-black' : 'font-bold'}`}>
                         {item.title}
                       </span>
                     </>
@@ -196,15 +199,15 @@ export const MobileApp: React.FC = () => {
         }`}>
           <div 
             onClick={() => { setInputLocation(location); setShowLocationModal(true); }}
-            className="flex justify-between items-center py-1.5 px-3.5 rounded-full text-left bg-slate-100/50 dark:bg-zinc-800/40 select-none cursor-pointer border border-brand-border/40 hover:bg-slate-100 transition-colors"
+            className={`flex items-center py-1.5 px-1 text-left select-none cursor-pointer transition-colors`}
           >
             <div className="flex gap-2.5 items-center">
-              <MapPin size={12} className={isServices ? 'text-services-gold' : 'text-brand-blue'} />
-              <span className={`text-[9.5px] font-semibold max-w-[210px] truncate ${isServices ? 'text-white' : 'text-brand-slate'}`}>
+              <MapPin size={12} className={isServices ? 'text-services-gold' : 'text-slate-800'} />
+              <span className={`text-[9.5px] font-bold max-w-[210px] truncate ${isServices ? 'text-white' : 'text-slate-800'}`}>
                 {location}
               </span>
             </div>
-            <ChevronDown size={11} className={isServices ? 'text-services-gold' : 'text-brand-slate'} />
+            <ChevronDown size={11} className={isServices ? 'text-services-gold' : 'text-slate-800'} />
           </div>
         </div>
 
@@ -212,11 +215,11 @@ export const MobileApp: React.FC = () => {
         <div className="w-full h-[44px] flex-shrink-0 select-none">
           <div
             onClick={() => { setSearchQuery(''); navigateTo('search'); }}
-            className="w-full bg-white border border-brand-border rounded-input py-2.5 px-4 flex items-center justify-between shadow-soft text-brand-slate text-xs font-medium cursor-pointer transition-all active:scale-[0.99] hover:border-zinc-300 leading-none shrink-0"
+            className="w-full bg-white border-[2px] border-[#2874F0] rounded-full py-2.5 px-4 flex items-center justify-between shadow-sm text-brand-slate text-xs font-medium cursor-pointer transition-all active:scale-[0.99] leading-none shrink-0"
           >
             <div className="flex items-center gap-2.5">
-              <Search size={14} className="text-brand-slate" />
-              <span className="text-zinc-500 font-sans text-[11px] font-medium truncate max-w-[170px] sm:max-w-xs">
+              <Search size={16} className="text-zinc-500" />
+              <span className="text-zinc-500 font-sans text-[12px] font-medium truncate max-w-[170px] sm:max-w-xs">
                 Search products, brands and catalog...
               </span>
             </div>
@@ -233,9 +236,10 @@ export const MobileApp: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Screen Router */}
-      <div className="flex-1 w-full relative pt-[182px]">
+      <div className={`flex-1 w-full relative ${currentPath === 'home' ? 'pt-[182px]' : 'pt-0'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={`${currentPath}-${currentVertical}`}
@@ -243,7 +247,7 @@ export const MobileApp: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="w-full h-full"
+            className="w-full"
           >
             {renderActiveScreen()}
           </motion.div>
@@ -251,51 +255,44 @@ export const MobileApp: React.FC = () => {
       </div>
 
       {/* Native-style Mobile Bottom Navigation Tab Bar (Rounded 24px) */}
-      <nav className={`fixed bottom-0 left-0 right-0 h-15 border-t z-45 grid grid-cols-5 items-center select-none shadow-elevated rounded-t-bottom-nav transition-colors duration-300 px-2 ${
-        isServices ? 'bg-zinc-900 border-zinc-800 text-zinc-400' : 'bg-white border-brand-border text-brand-slate'
-      }`}>
-        {[
+      {currentPath !== 'detail' && (
+        <nav className={`fixed bottom-0 left-0 right-0 h-16 border-t z-45 flex justify-around items-center select-none shadow-[0_-4px_20px_rgba(0,0,0,0.04)] bg-white transition-colors duration-300 px-2`}>
+          {[
           { id: 'home', label: 'Home', icon: Home, action: () => navigateTo('home') },
-          { id: 'search', label: 'Search', icon: Grid, action: () => { setSearchQuery(''); navigateTo('search'); } },
-          { id: 'cart', label: 'Cart', icon: ShoppingCart, action: () => navigateTo('cart'), badge: true },
-          { id: 'orders', label: 'Orders', icon: Package, action: () => navigateTo('orders') },
-          { id: 'profile', label: 'Profile', icon: User, action: () => navigateTo('profile') }
+          { id: 'search', label: 'Categories', icon: LayoutGrid, action: () => { setSearchQuery(''); navigateTo('search'); } },
+          { id: 'orders', label: 'Buy Again', icon: RotateCcw, action: () => navigateTo('orders') },
+          { id: 'cart', label: 'Basket', icon: ShoppingBag, action: () => navigateTo('cart'), badge: true },
+          { id: 'profile', label: 'Account', icon: User, action: () => navigateTo('profile') }
         ].map(tab => {
           const isActive = activeTab === tab.id || (tab.id === 'search' && currentPath === 'search' && !searchQuery);
           const Icon = tab.icon;
-          const activeColor = isServices ? 'text-services-gold' : 'text-brand-blue';
+          const activeColor = 'text-[#1A73E8]';
+          const inactiveColor = 'text-[#64748b]';
 
           return (
             <motion.button
               key={tab.id}
               onClick={tab.action}
               whileTap={{ scale: 0.9 }}
-              className={`flex flex-col items-center justify-center gap-0.5 h-full relative transition-colors py-1 rounded-[12px] ${
-                isActive ? `${activeColor} font-semibold` : 'text-brand-slate'
+              className={`flex flex-col items-center justify-center gap-1 h-full w-full relative transition-colors py-2 ${
+                isActive ? `${activeColor}` : inactiveColor
               }`}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="activeMobileBottomTab"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  className={`absolute inset-0 w-[65px] h-[38px] m-auto z-[-1] rounded-[10px] ${
-                    isServices ? 'bg-services-gold/10' : 'bg-brand-blue/5'
-                  }`}
-                />
-              )}
               <div className="relative">
-                <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
+                {/* When active, we set fill to the active color, else transparent */}
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="transition-all duration-300" fill={isActive ? '#1A73E8' : 'transparent'} stroke={isActive ? '#1A73E8' : 'currentColor'} />
                 {tab.badge && cartItemCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-brand-orange px-1 text-[8px] font-black text-white font-numbers">
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-black text-white font-numbers border border-white">
                     {cartItemCount}
                   </span>
                 )}
               </div>
-              <span className="text-[9px] tracking-wide mt-0.5">{tab.label}</span>
+              <span className={`text-[10px] font-sans transition-all duration-300 ${isActive ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
             </motion.button>
           );
         })}
-      </nav>
+        </nav>
+      )}
 
       {/* Hamburger Drawer Modal Sidebar */}
       <AnimatePresence>

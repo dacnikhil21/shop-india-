@@ -213,78 +213,82 @@ export const CartPage: React.FC = () => {
 
   const renderMobile = () => {
     return (
-      <div className="w-full flex flex-col bg-[#FAF9F6] min-h-screen text-left pb-28 select-none text-brand-graphite font-sans">
-        <div className="px-4 py-3.5 sticky top-12 z-30 bg-white border-b border-brand-border flex items-center justify-between">
-          <span className="font-extrabold text-xs uppercase tracking-wider font-heading">Shopping Cart ({cart.length})</span>
+      <div className="w-full flex flex-col bg-slate-50/50 min-h-screen text-left pb-36 select-none text-brand-graphite font-sans">
+        {/* Glassmorphism Header */}
+        <div className="px-5 py-4 sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+          <span className="font-black text-[13px] uppercase tracking-widest font-heading text-zinc-800">Shopping Cart <span className="text-brand-slate font-bold">({cart.length})</span></span>
         </div>
 
         {cart.length === 0 ? (
-          <div className="m-4 py-20 bg-white border border-brand-border rounded-[20px] flex flex-col items-center justify-center text-center p-6 shadow-soft select-none">
-            <span className="text-3xl mb-4">🛒</span>
-            <h3 className="text-xs font-extrabold text-brand-graphite mb-1 font-heading">Your cart is empty</h3>
-            <p className="text-[10px] text-brand-slate max-w-xs mb-5 font-semibold">Fill your cart with fresh selections!</p>
+          <div className="m-5 py-24 bg-white border border-slate-200/60 rounded-3xl flex flex-col items-center justify-center text-center p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] select-none">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <ShoppingCart size={32} className="text-slate-300" strokeWidth={2} />
+            </div>
+            <h3 className="text-sm font-black text-zinc-800 mb-2 font-heading tracking-tight">Your cart is empty</h3>
+            <p className="text-xs text-slate-500 max-w-[200px] mb-8 font-semibold leading-relaxed">Looks like you haven't added anything to your cart yet.</p>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => navigateTo('home')}
-              className="px-4 py-2 bg-brand-blue text-white rounded-button text-[9.5px] font-black shadow uppercase tracking-wider"
+              className="px-8 py-3.5 bg-[#0A1022] text-white rounded-full text-xs font-bold shadow-[0_4px_14px_rgba(10,16,34,0.3)] tracking-wide transition-colors hover:bg-black"
             >
-              Shop Now
+              Start Shopping
             </motion.button>
           </div>
         ) : (
-          <div className="p-3 flex flex-col gap-3">
+          <div className="p-4 flex flex-col gap-5">
             {/* List */}
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-4">
               {cart.map(item => {
                 return (
                   <div
                     key={`${item.product.id}-${item.product.deliveryTime || ''}`}
-                    className="bg-white border border-brand-border rounded-[20px] p-3 flex gap-3 shadow-soft relative"
+                    className="bg-white border border-slate-200/60 rounded-3xl p-4 flex gap-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] relative"
                   >
-                    <div className="w-20 h-20 bg-brand-elevated border border-brand-border/40 rounded-[20px] p-1.5 flex items-center justify-center shrink-0 shadow-soft">
-                      <img src={item.product.image} alt={item.product.title} className="max-h-full max-w-full object-contain" />
+                    <div className="w-24 h-24 bg-gradient-to-b from-slate-50 to-white border border-slate-100 rounded-2xl p-2.5 flex items-center justify-center shrink-0 shadow-sm relative overflow-hidden">
+                      <div className="absolute inset-0 bg-brand-blue/5 blur-xl rounded-full scale-150 opacity-30 mix-blend-multiply"></div>
+                      <img src={item.product.image} alt={item.product.title} className="max-h-full max-w-full object-contain relative z-10 drop-shadow-md" />
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex-1 flex flex-col justify-between py-1">
                       <div>
-                        <div className="flex justify-between items-start leading-none pr-6">
-                          <h3 className="font-bold text-[10.5px] text-brand-graphite line-clamp-1 font-heading">{item.product.title}</h3>
+                        <div className="flex justify-between items-start leading-tight pr-8">
+                          <h3 className="font-extrabold text-[13px] text-zinc-800 line-clamp-2 tracking-tight">{item.product.title}</h3>
                           <button
                             onClick={() => removeFromCart(item.product.id)}
-                            className="text-brand-slate p-0.5"
+                            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors"
                           >
-                            <Trash2 size={12} />
+                            <Trash2 size={14} strokeWidth={2.5} />
                           </button>
                         </div>
                         {item.product.deliveryTime && (
-                            <span className="text-[8px] font-black text-brand-green bg-green-50 px-1.5 py-0.2 rounded w-max mt-1.5 block shadow-soft">
+                            <span className="text-[9px] font-bold text-brand-green bg-[#ECFDF5] border border-brand-green/20 px-2 py-0.5 rounded-full w-max mt-2 block shadow-sm">
                               Slot: {item.product.deliveryTime}
                             </span>
                           )}
                       </div>
 
-                      <div className="flex items-center justify-between font-numbers mt-2.5">
-                        <div className="flex items-baseline gap-1 mt-1 leading-none">
-                          <span className="text-xs font-extrabold text-brand-graphite">₹{item.product.price}</span>
+                      <div className="flex items-end justify-between font-numbers mt-3">
+                        <div className="flex items-baseline gap-1.5 leading-none">
+                          <span className="text-lg font-black text-zinc-800 tracking-tighter">₹{item.product.price.toLocaleString('en-IN')}</span>
                           {item.product.originalPrice > item.product.price && (
-                            <span className="text-[9px] text-brand-slate line-through">₹{item.product.originalPrice}</span>
+                            <span className="text-[11px] text-slate-400 line-through font-semibold">₹{item.product.originalPrice.toLocaleString('en-IN')}</span>
                           )}
                         </div>
 
                         {/* Qty action */}
-                        <div className="flex items-center border border-brand-blue bg-brand-blue text-white rounded-button overflow-hidden text-[10px] font-extrabold shadow-soft">
+                        <div className="flex items-center bg-slate-100/80 rounded-full overflow-hidden text-xs font-black shadow-inner border border-slate-200/50">
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                            className="px-1.5 py-1 hover:bg-blue-600 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-slate-200/80 text-zinc-600 transition-colors active:scale-90"
                           >
-                            <Minus size={9} strokeWidth={3} />
+                            <Minus size={12} strokeWidth={3} />
                           </button>
-                          <span className="px-1.5 min-w-[15px] text-center">{item.quantity}</span>
+                          <span className="w-6 text-center text-zinc-800">{item.quantity}</span>
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                            className="px-1.5 py-1 hover:bg-blue-600 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-slate-200/80 text-zinc-600 transition-colors active:scale-90"
                           >
-                            <Plus size={9} strokeWidth={3} />
+                            <Plus size={12} strokeWidth={3} />
                           </button>
                         </div>
                       </div>
@@ -295,44 +299,44 @@ export const CartPage: React.FC = () => {
             </div>
 
             {/* Bill Details */}
-            <div className="bg-white border border-brand-border rounded-[20px] p-4.5 shadow-soft flex flex-col gap-3 font-numbers mt-1 select-none">
-              <span className="text-brand-graphite font-black text-[10px] tracking-wider uppercase font-heading border-b border-brand-border/10 pb-2 text-left">
+            <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-4 font-numbers select-none">
+              <span className="text-zinc-800 font-black text-[11px] tracking-widest uppercase font-heading border-b border-slate-100 pb-3 text-left">
                 Payment Details
               </span>
-              <div className="flex flex-col gap-2 text-[10.5px] text-brand-slate font-bold">
+              <div className="flex flex-col gap-3.5 text-xs text-slate-500 font-bold">
                 <div className="flex justify-between items-center">
                   <span>Subtotal</span>
-                  <span className="text-brand-graphite font-extrabold">₹{cartTotal.toLocaleString('en-IN')}</span>
+                  <span className="text-zinc-800 font-extrabold text-[13px]">₹{cartTotal.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between items-center border-b border-brand-border pb-2">
+                <div className="flex justify-between items-center">
                   <span>Delivery fee</span>
-                  <span className={deliveryCharges === 0 ? 'text-brand-green font-extrabold' : 'text-brand-graphite'}>
+                  <span className={deliveryCharges === 0 ? 'text-[#17B169] font-black' : 'text-zinc-800'}>
                     {deliveryCharges === 0 ? 'FREE' : `₹${deliveryCharges}`}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-xs font-black text-brand-graphite pt-1 leading-none">
-                  <span>Pay Amount</span>
-                  <span>₹{finalTotal.toLocaleString('en-IN')}</span>
+                <div className="flex justify-between items-center text-sm font-black text-zinc-900 pt-3 border-t border-slate-100 leading-none">
+                  <span>Total Amount</span>
+                  <span className="text-lg tracking-tight">₹{finalTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Mobile checkout floating bar (16px buttons) */}
+        {/* Mobile checkout floating bar */}
         {cart.length > 0 && (
-          <div className="fixed bottom-14 left-0 right-0 h-14 bg-white border-t border-brand-border px-4 flex items-center justify-between z-40 select-none shadow-premium">
+          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 px-5 py-4 pb-safe flex items-center justify-between z-40 select-none shadow-[0_-8px_20px_-8px_rgba(0,0,0,0.1)]">
             <div className="flex flex-col leading-none font-numbers">
-              <span className="text-xs font-extrabold text-brand-graphite">₹{finalTotal.toLocaleString('en-IN')}</span>
-              <span className="text-[8px] text-brand-slate font-extrabold uppercase mt-0.5">Total Payable</span>
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1 font-sans">Total Payable</span>
+              <span className="text-[22px] font-black text-zinc-900 tracking-tighter">₹{finalTotal.toLocaleString('en-IN')}</span>
             </div>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleCheckout}
-              className="px-6 py-2.5 bg-brand-green hover:bg-emerald-650 text-white rounded-button text-[10.5px] font-black uppercase tracking-wider shadow flex items-center gap-1 font-heading"
+              className="px-8 py-3.5 bg-[#17B169] hover:bg-emerald-600 text-white rounded-full text-[13px] font-black uppercase tracking-wider shadow-[0_4px_14px_rgba(23,177,105,0.3)] flex items-center gap-2 font-heading transition-colors"
             >
               <span>Place Order</span>
-              <ArrowRight size={12} />
+              <ArrowRight size={16} strokeWidth={2.5} />
             </motion.button>
           </div>
         )}

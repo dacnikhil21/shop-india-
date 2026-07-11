@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PRODUCTS } from '../../data/mockData';
+import { CartDrawer } from '../common/CartDrawer';
 import { Search, ShoppingCart, ChevronDown, User, Package, LogOut, Briefcase, MapPin, Sparkles, Zap, ShoppingBag, Mic, Camera, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -19,6 +20,7 @@ export const DesktopHeader: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(true);
   const suggestionRef = useRef<HTMLDivElement>(null);
 
@@ -329,7 +331,7 @@ export const DesktopHeader: React.FC = () => {
                     <Package size={15} className="text-brand-slate" /> Orders & Tracking
                   </button>
                   <button
-                    onClick={() => { navigateTo('cart'); setShowProfileDropdown(false); }}
+                    onClick={() => { setIsCartDrawerOpen(true); setShowProfileDropdown(false); }}
                     className="flex items-center gap-3.5 px-4.5 py-3 hover:bg-slate-50 transition-colors text-left border-b border-brand-border"
                   >
                     <ShoppingCart size={15} className="text-brand-slate" /> Active Cart
@@ -357,7 +359,7 @@ export const DesktopHeader: React.FC = () => {
 
           {/* Cart Button */}
           <button
-            onClick={() => navigateTo('cart')}
+            onClick={() => setIsCartDrawerOpen(true)}
             className={`relative flex items-center gap-2 hover:opacity-85 transition-opacity ${
               isDark ? 'text-zinc-350 hover:text-white' : 'text-brand-slate hover:text-brand-graphite'
             }`}
@@ -380,6 +382,8 @@ export const DesktopHeader: React.FC = () => {
         </div>
       </div>
 
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartDrawerOpen} onClose={() => setIsCartDrawerOpen(false)} />
     </header>
   );
 };

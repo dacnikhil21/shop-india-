@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PRODUCTS, BANNERS, CATEGORIES } from '../../data/mockData';
-import { Star, Award, Heart, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { BANNERS, CATEGORIES } from '../../data/mockData';
+import { useProducts } from '../../hooks/useProducts';
+import { Star, Award, Heart, ChevronLeft, ChevronRight, Clock, ShoppingCart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const VerticalShop: React.FC = () => {
-  const { navigateTo, setSearchQuery } = useApp();
+  const { navigateTo, setSearchQuery, addToCart } = useApp();
+  const { products, loading } = useProducts();
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 32, seconds: 45 });
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHoveringCarousel, setIsHoveringCarousel] = useState(false);
 
   // Filter products for this vertical
-  const shopProducts = PRODUCTS.filter(p => p.vertical === 'shop');
+  const shopProducts = products.filter(p => p.vertical === 'shop');
   const banners = BANNERS.filter(b => b.vertical === 'shop');
 
   // Autoplay for Hero Carousel
@@ -332,60 +334,86 @@ export const VerticalShop: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-6">
-              {mobiles.map(product => {
-                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-                const isWishlisted = wishlist[product.id];
-                return (
-                  <div
-                    key={product.id}
-                    onClick={() => navigateTo('detail', product.id)}
-                    className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card hover:shadow-hover-lift hover:-translate-y-1.5 transition-all duration-500 ease-out cursor-pointer h-full group relative"
-                  >
-                    {/* Wishlist Button */}
-                    <motion.button
-                      whileTap={{ scale: 0.8 }}
-                      onClick={(e) => toggleWishlist(product.id, e)}
-                      className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
-                    >
-                      <Heart size={13} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
-                    </motion.button>
-
-                    <div className="w-full aspect-square flex items-center justify-center mb-5 relative overflow-hidden rounded-card bg-brand-elevated border border-brand-border/40 p-2.5 shadow-soft">
-                      <img 
-                        src={product.image} 
-                        alt={product.title} 
-                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
-                      />
-                      {product.isAssured && (
-                        <div className="absolute bottom-3.5 left-3.5 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
-                          <span className="text-brand-blue">ShopIndia</span>
-                          <span className="text-brand-orange">Assured</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <h4 className="text-xs font-medium text-brand-graphite line-clamp-2 leading-relaxed mb-3.5 group-hover:text-brand-blue transition-colors min-h-[36px] font-heading">
-                      {product.title}
-                    </h4>
-
-                    {/* Ratings and Count Row */}
-                    <div className="flex items-center gap-2 mb-4 mt-auto leading-none select-none">
-                      <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-semibold text-[9px] px-2 py-0.5 rounded shadow-soft font-numbers">
-                        <span>{product.rating}</span>
-                        <Star size={8} className="fill-brand-green text-brand-green" />
-                      </div>
-                      <span className="text-[10px] text-brand-slate font-semibold font-numbers">({product.ratingCount.toLocaleString('en-IN')} ratings)</span>
-                    </div>
-
-                    {/* Price and discount badges details */}
-                    <div className="flex items-baseline gap-2 mt-1 leading-none font-numbers">
-                      <span className="text-sm font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
-                      <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                      <span className="text-[9.5px] font-bold text-brand-orange bg-orange-50 border border-brand-orange/10 px-2 py-0.5 rounded-full uppercase tracking-wider">{discount}% Off</span>
-                    </div>
+              {loading ? (
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card h-80 animate-pulse">
+                    <div className="w-full aspect-square bg-slate-200 rounded-card mb-5"></div>
+                    <div className="h-4 bg-slate-200 rounded w-3/4 mb-3"></div>
+                    <div className="h-3 bg-slate-200 rounded w-1/2 mt-auto mb-4"></div>
+                    <div className="h-5 bg-slate-200 rounded w-1/3"></div>
                   </div>
-                );
-              })}
+                ))
+              ) : mobiles.length === 0 ? (
+                <div className="col-span-3 text-center py-10 text-brand-slate text-sm font-semibold">No mobiles found.</div>
+              ) : (
+                mobiles.map(product => {
+                  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                  const isWishlisted = wishlist[product.id];
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => navigateTo('detail', product.id)}
+                      className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card hover:shadow-hover-lift hover:-translate-y-1.5 transition-all duration-500 ease-out cursor-pointer h-full group relative"
+                    >
+                      {/* Wishlist Button */}
+                      <motion.button
+                        whileTap={{ scale: 0.8 }}
+                        onClick={(e) => toggleWishlist(product.id, e)}
+                        className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
+                      >
+                        <Heart size={13} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                      </motion.button>
+
+                      <div className="w-full aspect-square flex items-center justify-center mb-5 relative overflow-hidden rounded-card bg-brand-elevated border border-brand-border/40 p-2.5 shadow-soft">
+                        <img 
+                          src={product.image} 
+                          alt={product.title} 
+                          className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
+                        />
+                        {product.isAssured && (
+                          <div className="absolute bottom-3.5 left-3.5 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
+                            <span className="text-brand-blue">ShopIndia</span>
+                            <span className="text-brand-orange">Assured</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <h4 className="text-xs font-medium text-brand-graphite line-clamp-2 leading-relaxed mb-3.5 group-hover:text-brand-blue transition-colors min-h-[36px] font-heading">
+                        {product.title}
+                      </h4>
+
+                      {/* Ratings and Count Row */}
+                      <div className="flex items-center gap-2 mb-4 mt-auto leading-none select-none">
+                        <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-semibold text-[9px] px-2 py-0.5 rounded shadow-soft font-numbers">
+                          <span>{product.rating}</span>
+                          <Star size={8} className="fill-brand-green text-brand-green" />
+                        </div>
+                        <span className="text-[10px] text-brand-slate font-semibold font-numbers">({product.ratingCount.toLocaleString('en-IN')} ratings)</span>
+                      </div>
+
+                      {/* Price and discount badges details */}
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="flex flex-col gap-1 leading-none font-numbers">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-sm font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                            <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                          </div>
+                          <span className="text-[9.5px] font-bold text-brand-orange w-max bg-orange-50 border border-brand-orange/10 px-2 py-0.5 rounded-full uppercase tracking-wider">{discount}% Off</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
+                          className="p-2 bg-brand-blue/10 text-brand-blue hover:bg-brand-blue hover:text-white transition-colors rounded-full"
+                        >
+                          <ShoppingCart size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -405,60 +433,73 @@ export const VerticalShop: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-6">
-              {electronics.map(product => {
-                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-                const isWishlisted = wishlist[product.id];
-                return (
-                  <div
-                    key={product.id}
-                    onClick={() => navigateTo('detail', product.id)}
-                    className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card hover:shadow-hover-lift hover:-translate-y-1.5 transition-all duration-500 ease-out cursor-pointer h-full group relative"
-                  >
-                    {/* Wishlist Button */}
-                    <motion.button
-                      whileTap={{ scale: 0.8 }}
-                      onClick={(e) => toggleWishlist(product.id, e)}
-                      className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
-                    >
-                      <Heart size={13} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
-                    </motion.button>
-
-                    <div className="w-full aspect-square flex items-center justify-center mb-5 relative overflow-hidden rounded-card bg-brand-elevated border border-brand-border/40 p-2.5 shadow-soft">
-                      <img 
-                        src={product.image} 
-                        alt={product.title} 
-                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
-                      />
-                      {product.isAssured && (
-                        <div className="absolute bottom-3.5 left-3.5 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
-                          <span className="text-brand-blue">ShopIndia</span>
-                          <span className="text-brand-orange">Assured</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <h4 className="text-xs font-medium text-brand-graphite line-clamp-2 leading-relaxed mb-3.5 group-hover:text-brand-blue transition-colors min-h-[36px] font-heading">
-                      {product.title}
-                    </h4>
-
-                    {/* Ratings and Count Row */}
-                    <div className="flex items-center gap-2 mb-4 mt-auto leading-none select-none">
-                      <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-semibold text-[9px] px-2 py-0.5 rounded shadow-soft font-numbers">
-                        <span>{product.rating}</span>
-                        <Star size={8} className="fill-brand-green text-brand-green" />
-                      </div>
-                      <span className="text-[10px] text-brand-slate font-semibold font-numbers">({product.ratingCount.toLocaleString('en-IN')} ratings)</span>
-                    </div>
-
-                    {/* Price and discount badges details */}
-                    <div className="flex items-baseline gap-2 mt-1 leading-none font-numbers">
-                      <span className="text-sm font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
-                      <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
-                      <span className="text-[9.5px] font-bold text-brand-orange bg-orange-50 border border-brand-orange/10 px-2 py-0.5 rounded-full uppercase tracking-wider">{discount}% Off</span>
-                    </div>
+              {loading ? (
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card h-80 animate-pulse">
+                    <div className="w-full aspect-square bg-slate-200 rounded-card mb-5"></div>
+                    <div className="h-4 bg-slate-200 rounded w-3/4 mb-3"></div>
+                    <div className="h-3 bg-slate-200 rounded w-1/2 mt-auto mb-4"></div>
+                    <div className="h-5 bg-slate-200 rounded w-1/3"></div>
                   </div>
-                );
-              })}
+                ))
+              ) : electronics.length === 0 ? (
+                <div className="col-span-3 text-center py-10 text-brand-slate text-sm font-semibold">No electronics found.</div>
+              ) : (
+                electronics.map(product => {
+                  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                  const isWishlisted = wishlist[product.id];
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => navigateTo('detail', product.id)}
+                      className="border border-brand-border rounded-card p-5.5 flex flex-col bg-brand-card hover:shadow-hover-lift hover:-translate-y-1.5 transition-all duration-500 ease-out cursor-pointer h-full group relative"
+                    >
+                      {/* Wishlist Button */}
+                      <motion.button
+                        whileTap={{ scale: 0.8 }}
+                        onClick={(e) => toggleWishlist(product.id, e)}
+                        className="absolute top-3.5 right-3.5 p-2 rounded-full bg-white/95 text-zinc-400 hover:text-brand-red shadow-soft border border-brand-border transition-colors z-10"
+                      >
+                        <Heart size={13} className={isWishlisted ? "fill-brand-red text-brand-red" : ""} />
+                      </motion.button>
+
+                      <div className="w-full aspect-square flex items-center justify-center mb-5 relative overflow-hidden rounded-card bg-brand-elevated border border-brand-border/40 p-2.5 shadow-soft">
+                        <img 
+                          src={product.image} 
+                          alt={product.title} 
+                          className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" 
+                        />
+                        {product.isAssured && (
+                          <div className="absolute bottom-3.5 left-3.5 z-10 flex items-center gap-0.5 bg-blue-50/95 text-[9px] font-black italic px-1.5 py-0.5 rounded border border-brand-blue/20 backdrop-blur-sm select-none shadow-sm">
+                            <span className="text-brand-blue">ShopIndia</span>
+                            <span className="text-brand-orange">Assured</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <h4 className="text-xs font-medium text-brand-graphite line-clamp-2 leading-relaxed mb-3.5 group-hover:text-brand-blue transition-colors min-h-[36px] font-heading">
+                        {product.title}
+                      </h4>
+
+                      {/* Ratings and Count Row */}
+                      <div className="flex items-center gap-2 mb-4 mt-auto leading-none select-none">
+                        <div className="flex items-center gap-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green font-semibold text-[9px] px-2 py-0.5 rounded shadow-soft font-numbers">
+                          <span>{product.rating}</span>
+                          <Star size={8} className="fill-brand-green text-brand-green" />
+                        </div>
+                        <span className="text-[10px] text-brand-slate font-semibold font-numbers">({product.ratingCount.toLocaleString('en-IN')} ratings)</span>
+                      </div>
+
+                      {/* Price and discount badges details */}
+                      <div className="flex items-baseline gap-2 mt-1 leading-none font-numbers">
+                        <span className="text-sm font-semibold text-brand-graphite">₹{product.price.toLocaleString('en-IN')}</span>
+                        <span className="text-[10px] text-brand-slate line-through">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                        <span className="text-[9.5px] font-bold text-brand-orange bg-orange-50 border border-brand-orange/10 px-2 py-0.5 rounded-full uppercase tracking-wider">{discount}% Off</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

@@ -151,40 +151,44 @@ export const OrdersPage: React.FC = () => {
 
   const renderMobile = () => {
     return (
-      <div className="w-full flex flex-col bg-[#FAF9F6] min-h-screen text-left pb-20 select-none text-brand-graphite font-sans">
-        <div className="px-4 py-3.5 sticky top-12 z-30 bg-white border-b border-brand-border flex items-center justify-between">
-          <span className="font-extrabold text-xs uppercase tracking-wider font-heading">Track Package</span>
+      <div className="w-full flex flex-col bg-slate-50/50 min-h-screen text-left pb-36 select-none text-brand-graphite font-sans">
+        {/* Glassmorphism Header */}
+        <div className="px-5 py-4 sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+          <span className="font-black text-[13px] uppercase tracking-widest font-heading text-zinc-800">Track Package</span>
         </div>
 
-        <div className="p-3 flex flex-col gap-3">
+        <div className="p-4 flex flex-col gap-5">
           {/* Tracking reference */}
-          <div className="bg-white border border-brand-border rounded-[20px] p-4.5 shadow-soft">
-            <span className="text-[8px] uppercase font-black tracking-widest text-brand-slate font-heading">ID: {activeOrder.id}</span>
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-[11px] font-black text-brand-graphite">Arrival: <strong className="text-brand-green font-black">{activeOrder.estimatedDelivery}</strong></span>
-              <span className="text-[9px] bg-[#ECFDF5] text-brand-green border border-brand-green/10 px-2 py-0.5 rounded-full font-black uppercase">
+          <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)]">
+            <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 font-heading">ID: {activeOrder.id}</span>
+            <div className="flex justify-between items-center mt-2 pb-5 border-b border-slate-100">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-500 mb-0.5">Estimated Arrival</span>
+                <span className="text-[14px] font-black text-[#17B169]">{activeOrder.estimatedDelivery}</span>
+              </div>
+              <span className="text-[10px] bg-[#ECFDF5] text-[#17B169] border border-[#17B169]/20 px-3 py-1 rounded-full font-black uppercase tracking-wider">
                 {activeOrder.status}
               </span>
             </div>
 
             {/* Timeline */}
-            <div className="flex flex-col gap-4 relative pl-5.5 mt-5">
-              <div className="absolute left-[7px] top-1.5 bottom-1.5 w-[1.5px] bg-slate-100 z-0"></div>
+            <div className="flex flex-col gap-6 relative pl-7 mt-6">
+              <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100 z-0 rounded-full"></div>
 
               {activeOrder.steps.map((step, idx) => {
                 const isDone = step.status === 'done';
                 const isActive = step.status === 'active';
                 return (
-                  <div key={idx} className="flex gap-3 relative z-10">
-                    <span className={`absolute left-[-20px] w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center transition-all ${
-                      isDone ? 'bg-brand-green border-brand-green text-white shadow-soft' : isActive ? 'bg-white border-brand-blue text-brand-blue scale-105' : 'bg-white border-slate-200'
+                  <div key={idx} className="flex gap-4 relative z-10">
+                    <span className={`absolute left-[-28px] w-6 h-6 rounded-full border-[3px] flex items-center justify-center transition-all shadow-sm bg-white ${
+                      isDone ? 'border-[#17B169] text-[#17B169]' : isActive ? 'border-brand-blue text-brand-blue scale-110 shadow-md' : 'border-slate-200'
                     }`}>
-                      {isDone && <CheckCircle2 size={9} className="stroke-[3]" />}
-                      {isActive && <div className="w-1.5 h-1.5 bg-brand-blue rounded-full"></div>}
+                      {isDone && <CheckCircle2 size={12} className="stroke-[3]" />}
+                      {isActive && <div className="w-2 h-2 bg-brand-blue rounded-full"></div>}
                     </span>
-                    <div className="flex flex-col leading-tight">
-                      <span className={`text-[10.5px] font-extrabold ${isActive ? 'text-brand-blue' : isDone ? 'text-brand-graphite' : 'text-brand-slate'}`}>{step.label}</span>
-                      <span className="text-[9px] text-brand-slate font-semibold mt-0.5">{step.desc}</span>
+                    <div className="flex flex-col leading-tight pt-0.5">
+                      <span className={`text-[13px] font-extrabold tracking-tight ${isActive ? 'text-brand-blue' : isDone ? 'text-zinc-800' : 'text-slate-400'}`}>{step.label}</span>
+                      <span className="text-[11px] text-slate-500 font-semibold mt-1">{step.desc}</span>
                     </div>
                   </div>
                 );
@@ -193,21 +197,21 @@ export const OrdersPage: React.FC = () => {
           </div>
 
           {/* Items package list */}
-          <div className="bg-white border border-brand-border rounded-[20px] p-4 shadow-soft">
-            <span className="text-brand-graphite font-black text-[9px] uppercase tracking-widest font-heading border-b border-brand-border/10 pb-2 block mb-3.5">
+          <div className="bg-white border border-slate-200/60 rounded-3xl p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)]">
+            <span className="text-zinc-800 font-black text-[11px] uppercase tracking-widest font-heading border-b border-slate-100 pb-3 block mb-4">
               Package Contents
             </span>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {activeOrder.items.map((item, idx) => (
-                <div key={idx} className="flex gap-3 items-center border-b border-brand-border/10 pb-3 last:border-0 last:pb-0">
-                  <div className="w-10 h-10 bg-brand-elevated border border-brand-border/40 rounded-[20px] p-1 flex items-center justify-center shrink-0 shadow-soft">
-                    <img src={item.img} alt={item.name} className="max-h-full max-w-full object-contain" />
+                <div key={idx} className="flex gap-4 items-center border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                  <div className="w-14 h-14 bg-gradient-to-b from-slate-50 to-white border border-slate-100 rounded-2xl p-1.5 flex items-center justify-center shrink-0 shadow-sm relative overflow-hidden">
+                    <img src={item.img} alt={item.name} className="max-h-full max-w-full object-contain drop-shadow-sm relative z-10" />
                   </div>
                   <div className="flex-1 flex flex-col text-left">
-                    <span className="font-bold text-[10px] text-brand-graphite line-clamp-1 font-heading">{item.name}</span>
-                    <span className="text-[8.5px] text-brand-slate font-bold mt-0.5 font-numbers">Qty: {item.qty}</span>
+                    <span className="font-extrabold text-[12px] text-zinc-800 line-clamp-2 font-heading tracking-tight leading-snug">{item.name}</span>
+                    <span className="text-[10px] text-slate-500 font-bold mt-1.5 font-numbers bg-slate-50 px-2 py-0.5 rounded-md w-max">Qty: {item.qty}</span>
                   </div>
-                  <span className="text-[10px] font-black text-brand-graphite font-numbers shrink-0">
+                  <span className="text-[14px] font-black text-zinc-800 font-numbers shrink-0 tracking-tighter">
                     ₹{item.price.toLocaleString('en-IN')}
                   </span>
                 </div>
